@@ -4,7 +4,6 @@ from torchvision.models import get_model
 from models.individual_landmark_resnet import IndividualLandmarkResNet
 from models.individual_landmark_convnext import IndividualLandmarkConvNext
 from models.individual_landmark_vit import IndividualLandmarkViT
-from models.vit_baseline import BaselineViT
 
 
 def load_model_arch(args, num_cls):
