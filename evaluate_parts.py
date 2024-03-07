@@ -126,8 +126,6 @@ def main(args):
     # Add arguments to args
     args.eval_only = True
     args.pretrained_start_weights = True
-    args.instance_aware = False
-    args.use_cross_att_arch = False
     # Load the model
     net = load_model_pdisconet(args, num_cls)
     snapshot_data = torch.load(args.model_path, map_location=torch.device('cpu'))
