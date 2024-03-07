@@ -1,4 +1,4 @@
-name: ananthu_venv
+name: pdiscoformer_venv
 channels:
   - pytorch
   - nvidia
