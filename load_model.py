@@ -127,31 +127,6 @@ def init_pdisco_model(base_model, args, num_cls):
     return model
 
 
-def init_model_baseline(base_model, args, num_cls):
-    """
-    Function to initialize the baseline model
-    :param base_model: Model loaded from the timm/torchvision library
-    :param args: Arguments from the command line
-    :param num_cls: Number of classes in the dataset
-    :return:
-    """
-    # Initialize the network
-    if 'convnext' in args.model_arch:
-        torch.nn.init.trunc_normal_(base_model.fc.head.weight, std=.02)
-        if base_model.fc.head.bias is not None:
-            torch.nn.init.constant_(base_model.fc.head.bias, 0.)
-
-    if 'resnet' in args.model_arch:
-        torch.nn.init.trunc_normal_(base_model.fc.weight, std=.02)
-        if base_model.fc.bias is not None:
-            torch.nn.init.constant_(base_model.fc.bias, 0.)
-
-    if 'vit' in args.model_arch:
-        base_model = BaselineViT(base_model, num_classes=num_cls, class_tokens_only=args.class_token_only,
-                                 patch_tokens_only=args.patch_tokens_only)
-    return base_model
-
-
 def load_model_pdisconet(args, num_cls):
     """
     Function to load the model
@@ -161,18 +136,5 @@ def load_model_pdisconet(args, num_cls):
     """
     base_model = load_model_arch(args, num_cls)
     model = init_pdisco_model(base_model, args, num_cls)
-
-    return model
-
-
-def load_model_baseline(args, num_cls):
-    """
-    Function to load the baseline model
-    :param args: Arguments from the command line
-    :param num_cls: Number of classes in the dataset
-    :return:
-    """
-    base_model = load_model_arch(args, num_cls)
-    model = init_model_baseline(base_model, args, num_cls)
 
     return model
