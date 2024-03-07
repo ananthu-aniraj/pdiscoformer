@@ -5,7 +5,3 @@ from .orthogonality_loss import *
 from .equivarance_loss import *
 from .enforced_presence_loss import *
 from .pixel_wise_entropy_loss import *
-from .contrastive_loss import *
-from .matcher import *
-from .inter_image_grouping_loss import *
-from .multi_pos_contrastive_loss import *

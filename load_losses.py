@@ -56,11 +56,8 @@ def load_pdisconet_loss_hyper_params(args):
                         'l_presence_beta': args.presence_loss_beta, 'l_presence_type': args.presence_loss_type,
                         'l_equiv': args.equivariance_loss, 'l_conc': args.concentration_loss,
                         'l_orth': args.orthogonality_loss_landmarks, 'l_tv': args.total_variation_loss,
-                        'l_area': args.area_loss, 'l_pixel_wise_entropy': args.pixel_wise_entropy_loss,
-                        'l_area_type': args.area_loss_type,
-                        'l_contrastive': args.contrastive_loss,
-                        'l_inter_image_grouping': args.inter_image_grouping_loss,
-                        'l_sup_con': args.sup_con_loss, 'l_sup_con_temp': args.sup_con_loss_temp}
+                        'l_enforced_presence': args.enforced_presence_loss, 'l_pixel_wise_entropy': args.pixel_wise_entropy_loss,
+                        'l_enforced_presence_loss_type': args.enforced_presence_loss_type}
 
     # Affine transform parameters for equivariance
     degrees = [-args.degrees, args.degrees]

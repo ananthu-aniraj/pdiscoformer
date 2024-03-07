@@ -175,17 +175,12 @@ class PDiscoNetTrainer:
         self.l_orth = loss_hyperparams['l_orth']
         self.l_equiv = loss_hyperparams['l_equiv']
         self.l_tv = loss_hyperparams['l_tv']
-        self.l_enforced_presence = loss_hyperparams['l_area']
-        self.l_area_type = loss_hyperparams['l_area_type']
+        self.l_enforced_presence = loss_hyperparams['l_enforced_presence']
+        self.l_enforced_presence_loss_type = loss_hyperparams['l_enforced_presence_loss_type']
         self.l_pixel_wise_entropy = loss_hyperparams['l_pixel_wise_entropy']
-        self.l_contrastive = loss_hyperparams['l_contrastive']
-        self.l_inter_image_grouping = loss_hyperparams['l_inter_image_grouping']
-        self.l_sup_con = loss_hyperparams['l_sup_con']
-        self.sup_con_loss = MultiPosConLoss(temperature=loss_hyperparams['l_sup_con_temp']).to(self.local_rank,
-                                                                                               non_blocking=True)
         self.conc_loss = ConcentrationLoss().to(self.local_rank, non_blocking=True)
-        self.enforced_presence_loss = EnforcedPresenceLoss(loss_type=self.l_area_type).to(self.local_rank,
-                                                                                          non_blocking=True)
+        self.enforced_presence_loss = EnforcedPresenceLoss(loss_type=self.l_enforced_presence_loss_type).to(self.local_rank,
+                                                                                                            non_blocking=True)
         self.total_variation_loss = TotalVariationLoss(reduction="mean").to(self.local_rank, non_blocking=True)
         self.presence_loss = PresenceLoss(beta=self.l_presence_beta,
                                           loss_type=self.l_presence_type).to(self.local_rank, non_blocking=True)
@@ -206,10 +201,7 @@ class PDiscoNetTrainer:
                                 'loss_total_train': AverageMeter(),
                                 'loss_tv': AverageMeter(),
                                 'loss_enforced_presence': AverageMeter(),
-                                'loss_pixel_wise_entropy': AverageMeter(),
-                                'loss_contrastive': AverageMeter(),
-                                'loss_inter_image_grouping': AverageMeter(),
-                                'loss_sup_con': AverageMeter()}
+                                'loss_pixel_wise_entropy': AverageMeter()}
 
         self.loss_dict_val = {'loss_total_val': AverageMeter()}
 
@@ -321,9 +313,6 @@ class PDiscoNetTrainer:
                 # Orthogonality loss
                 loss_orth = orthogonality_loss(all_features, self.num_landmarks) * self.l_orth
 
-                # Contrastive loss for dis-similarity maps
-                loss_contrastive = contrastive_loss(dis_sim_maps) * self.l_contrastive
-
                 # Equivariance loss: calculate rotated landmarks distance
                 loss_equiv = equivariance_loss(maps, equiv_maps, source, self.num_landmarks, translate, angle, scale,
                                                shear=0.0) * self.l_equiv
@@ -334,17 +323,7 @@ class PDiscoNetTrainer:
                 # Pixel-wise entropy loss
                 loss_pixel_wise_entropy = pixel_wise_entropy_loss(maps) * self.l_pixel_wise_entropy
 
-                # Inter-image grouping loss
-                loss_inter_image_grouping = inter_image_grouping_loss(all_features) * self.l_inter_image_grouping
-
-                # Multi-Positive Contrastive Loss
-                if self.l_sup_con > 0:
-                    loss_sup_con = self.sup_con_loss(all_features, local_rank=self.local_rank) * self.l_sup_con
-                else:
-                    loss_sup_con = torch.tensor(0.0, device=self.local_rank)
-
-                loss = loss_conc + loss_presence + loss_classification + loss_orth + loss_equiv + loss_tv + loss_enforced_presence + loss_pixel_wise_entropy + loss_contrastive
-                loss += loss_inter_image_grouping + loss_sup_con
+                loss = loss_conc + loss_presence + loss_classification + loss_orth + loss_equiv + loss_tv + loss_enforced_presence + loss_pixel_wise_entropy
 
                 self.optimizer.zero_grad(set_to_none=True)
                 if self.use_amp:
@@ -366,10 +345,7 @@ class PDiscoNetTrainer:
                                'loss_equiv_train': loss_equiv.item(),
                                'loss_total_train': loss.item(), 'loss_tv': loss_tv.item(),
                                'loss_enforced_presence': loss_enforced_presence.item(),
-                               'loss_pixel_wise_entropy': loss_pixel_wise_entropy.item(),
-                               'loss_contrastive': loss_contrastive.item(),
-                               'loss_inter_image_grouping': loss_inter_image_grouping.item(),
-                               'loss_sup_con': loss_sup_con.item()}
+                               'loss_pixel_wise_entropy': loss_pixel_wise_entropy.item()}
             else:
                 loss = self.loss_fn_eval(outputs, targets)
                 losses_dict = {'loss_total_val': loss.item()}
@@ -442,7 +418,7 @@ class PDiscoNetTrainer:
             if it % self.log_freq == 0:
                 if train:
                     print(
-                        f'''[GPU{self.global_rank}] Epoch {epoch} | Iter {it} | {step_type} Total Loss {losses_dict['loss_total_train']:.5f} | Classification Loss {losses_dict['loss_classification_train']:.5f} | Concentration Loss {losses_dict['loss_conc_train']:.5f} | Presence Loss {losses_dict['loss_presence_train']:.5f} | Orth Loss {losses_dict['loss_orth_train']:.5f} | Equiv Loss {losses_dict['loss_equiv_train']:.5f} | TV Loss {losses_dict['loss_tv']:.5f} | Enforced Presence Loss {losses_dict['loss_enforced_presence']:.5f} | Pixel-wise Entropy Loss {losses_dict['loss_pixel_wise_entropy']:.5f} | Contrastive Loss {losses_dict['loss_contrastive']:.5f} | Inter-Image Grouping Loss {losses_dict['loss_inter_image_grouping']:.5f} | Multi-Positive Contrastive Loss {losses_dict['loss_sup_con']:.5f}''')
+                        f'''[GPU{self.global_rank}] Epoch {epoch} | Iter {it} | {step_type} Total Loss {losses_dict['loss_total_train']:.5f} | Classification Loss {losses_dict['loss_classification_train']:.5f} | Concentration Loss {losses_dict['loss_conc_train']:.5f} | Presence Loss {losses_dict['loss_presence_train']:.5f} | Orth Loss {losses_dict['loss_orth_train']:.5f} | Equiv Loss {losses_dict['loss_equiv_train']:.5f} | TV Loss {losses_dict['loss_tv']:.5f} | Enforced Presence Loss {losses_dict['loss_enforced_presence']:.5f} | Pixel-wise Entropy Loss {losses_dict['loss_pixel_wise_entropy']:.5f}''')
                 else:
                     print(
                         f"[GPU{self.global_rank}] Epoch {epoch} | Iter {it} | {step_type} Total Loss {losses_dict['loss_total_val']:.5f}")

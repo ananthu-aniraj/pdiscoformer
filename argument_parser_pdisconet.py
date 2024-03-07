@@ -142,7 +142,7 @@ def parse_args():
     parser.add_argument('--job_type', default='fine_tune_dino_v2', type=str)
     parser.add_argument('--log_interval', default=10, type=int)
     parser.add_argument('--group', default='vit_base', type=str)
-    parser.add_argument('--wandb_entity', default='ananthu-phd', type=str)
+    parser.add_argument('--wandb_entity', default='', type=str)
     parser.add_argument('--wandb_mode', default='online', type=str, choices=['online', 'offline'])
 
     # * Resume training params
@@ -155,18 +155,14 @@ def parse_args():
     parser.add_argument('--presence_loss_beta', default=0.1, type=float)
     parser.add_argument('--presence_loss_type', default="original",
                         choices=["original", "soft_constraint", "tanh", "soft_tanh"], type=str)
-    parser.add_argument('--concentration_loss', default=1000, type=float)
+    parser.add_argument('--concentration_loss', default=0, type=float)
     parser.add_argument('--equivariance_loss', default=1.0, type=float)
     parser.add_argument('--orthogonality_loss_landmarks', default=1.0, type=float)
-    parser.add_argument('--total_variation_loss', default=0.0, type=float)
-    parser.add_argument('--area_loss', default=0.0, type=float)
-    parser.add_argument('--area_loss_type', default="enforced_presence", choices=["linear", "log", "mse", "enforced_presence"],
+    parser.add_argument('--total_variation_loss', default=1.0, type=float)
+    parser.add_argument('--enforced_presence_loss', default=2.0, type=float)
+    parser.add_argument('--enforced_presence_loss_type', default="enforced_presence", choices=["linear", "log", "mse", "enforced_presence"],
                         type=str)
-    parser.add_argument('--pixel_wise_entropy_loss', default=0.0, type=float)
-    parser.add_argument('--contrastive_loss', default=0.0, type=float)
-    parser.add_argument('--inter_image_grouping_loss', default=0.0, type=float)
-    parser.add_argument('--sup_con_loss', default=0.0, type=float)
-    parser.add_argument('--sup_con_loss_temp', default=0.1, type=float)
+    parser.add_argument('--pixel_wise_entropy_loss', default=1.0, type=float)
     parser.add_argument('--use_imbalanced_noised_topk', default=False, action='store_true')
     parser.add_argument('--topk_k', default=5, type=int)
     parser.add_argument('--topk_epsilon', default=0.01, type=float)
