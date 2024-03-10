@@ -24,10 +24,10 @@ def presence_loss_tanh(maps: torch.Tensor):
     :param maps: Attention map with shape (batch_size, channels, height, width) where channels is the landmark probability
     :return:
     """
-    pooled_maps = torch.nn.functional.adaptive_max_pool2d(torch.nn.functional.avg_pool2d(
-        maps, 3, stride=1), 1).flatten(start_dim=1).sum(dim=0)
+    pooled_maps = torch.tanh(torch.sum(torch.nn.functional.adaptive_max_pool2d(torch.nn.functional.avg_pool2d(
+        maps, 3, stride=1), 1).flatten(start_dim=1), dim=0))
 
-    loss_max = torch.nn.functional.binary_cross_entropy(torch.tanh(pooled_maps), target=torch.ones_like(pooled_maps))
+    loss_max = torch.nn.functional.binary_cross_entropy(pooled_maps, target=torch.ones_like(pooled_maps))
 
     return loss_max
 
@@ -38,12 +38,12 @@ def presence_loss_soft_tanh(maps: torch.Tensor):
     :param maps: Attention map with shape (batch_size, channels, height, width) where channels is the landmark probability
     :return:
     """
-    pooled_maps = torch.tanh(torch.nn.functional.adaptive_max_pool2d(torch.nn.functional.avg_pool2d(
-        maps, 3, stride=1), 1).flatten(start_dim=1).sum(dim=0)).mean()
+    pooled_maps = torch.tanh(torch.sum(torch.nn.functional.adaptive_max_pool2d(torch.nn.functional.avg_pool2d(
+        maps, 3, stride=1), 1).flatten(start_dim=1), dim=0))
 
     loss_max = 1 - pooled_maps
 
-    return loss_max
+    return loss_max.mean()
 
 
 def presence_loss_original(maps: torch.Tensor):
