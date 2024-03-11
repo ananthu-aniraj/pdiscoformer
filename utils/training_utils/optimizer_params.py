@@ -59,6 +59,7 @@ def build_optimizer(args, params_groups, dataset_train):
 def calculate_weight_decay(args, dataset_train):
     """
     Function to calculate the weight decay
+    Implementation of normalized weight decay as per the paper "Decoupled Weight Decay Regularization": https://arxiv.org/pdf/1711.05101.pdf
     :param args: Arguments from the command line
     :param dataset_train: Training dataset
     :return: weight_decay: Weight decay
