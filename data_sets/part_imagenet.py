@@ -107,7 +107,6 @@ class PartImageNetDataset(torch.utils.data.Dataset):
                     seg_poly = [x1, y1, x1, y2, x2, y2, x2, y1]
                     ann['segmentation'][poly_num] = seg_poly
         self.coco.dataset = copy.deepcopy(json_dict)
-        print("found issues, recreating index...")
         self.coco.createIndex()
 
     def __getitem__(self, idx):
