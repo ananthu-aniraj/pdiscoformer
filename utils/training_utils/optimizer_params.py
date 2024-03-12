@@ -15,7 +15,6 @@ def build_optimizer(args, params_groups, dataset_train):
     """
     grad_averaging = not args.turn_off_grad_averaging
     weight_decay = calculate_weight_decay(args, dataset_train)
-    print(f'Weight decay in current training: {weight_decay:.6f}')
     if args.optimizer_type == 'adamw':
         return torch.optim.AdamW(params=params_groups, betas=(args.betas1, args.betas2), lr=args.lr,
                                  weight_decay=weight_decay)
@@ -90,17 +89,14 @@ def layer_group_matcher_pdisconet(args, model):
 
     for name, p in model.named_parameters():
         if any(x in name for x in scratch_layers):
-            print("scratch layer_name: " + name)
             scratch_parameters.append(p)
             p.requires_grad = True
 
         elif any(x in name for x in modulation_layers):
-            print("modulation layer_name: " + name)
             modulation_parameters.append(p)
             p.requires_grad = True
 
         elif any(x in name for x in finer_layers):
-            print("finer layer_name: " + name)
             finer_parameters.append(p)
             p.requires_grad = True
 
@@ -109,7 +105,6 @@ def layer_group_matcher_pdisconet(args, model):
             if args.freeze_params:
                 p.requires_grad = False
             else:
-                print("unfrozen layer_name: " + name)
                 p.requires_grad = True
 
         else:
@@ -129,43 +124,4 @@ def layer_group_matcher_pdisconet(args, model):
                     {'params': modulation_parameters, 'lr': args.lr * args.modulation_lr_factor, 'weight_decay': 0.0},
                     {'params': scratch_parameters, 'lr': args.lr * args.scratch_lr_factor}]
 
-    return param_groups
-
-
-def layer_group_matcher_baseline(args, model):
-    """
-    Function to group the parameters of the model into different groups
-    :param args: Arguments from the command line
-    :param model: Model to be trained
-    :return: param_groups: Parameters grouped into different groups
-    """
-    scratch_layers = ["head", "fc"]
-    scratch_parameters = []
-    no_weight_decay_params_scratch = []
-    finetune_parameters = []
-    no_weight_decay_params_bb = []
-    for name, p in model.named_parameters():
-
-        if any(x in name for x in scratch_layers):
-            print("scratch layer_name: " + name)
-            if p.ndim == 1:
-                no_weight_decay_params_scratch.append(p)
-            else:
-                scratch_parameters.append(p)
-        else:
-            if p.ndim == 1:
-                no_weight_decay_params_bb.append(p)
-            else:
-                finetune_parameters.append(p)
-            if args.freeze_backbone:
-                p.requires_grad = False
-            else:
-                p.requires_grad = True
-
-    param_groups = [{'params': finetune_parameters, 'lr': args.lr},
-                    {'params': no_weight_decay_params_bb, 'lr': args.lr, 'weight_decay': 0.0},
-                    {'params': scratch_parameters, 'lr': args.lr * args.scratch_lr_factor}]
-    if len(no_weight_decay_params_scratch) > 0:
-        param_groups.append(
-            {'params': no_weight_decay_params_scratch, 'lr': args.lr * args.scratch_lr_factor, 'weight_decay': 0.0})
     return param_groups

@@ -133,7 +133,8 @@ class PDiscoNetTrainer:
                                                    dataset_name=self.name_dataset, bg_label=self.num_landmarks,
                                                    batch_size=self.batch_size, num_parts=self.num_landmarks + 1)
         if self.use_ddp:
-            print(f"Using {self.world_size} GPUs, Broadcast Buffers")
+            if self.local_rank == 0 and self.global_rank == 0:
+                print(f"Using {self.world_size} GPUs, Broadcast Buffers")
             self.model = DDP(self.model, device_ids=[self.local_rank], broadcast_buffers=True)
         else:
             print("Using single GPU")

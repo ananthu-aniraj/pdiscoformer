@@ -40,19 +40,21 @@ def ddp_setup():
 
         # summary
         prefix = "%i - " % global_rank
-        print(prefix + "Number of nodes: %i" % n_nodes)
-        print(prefix + "Node ID        : %i" % node_id)
-        print(prefix + "Local rank     : %i" % local_rank)
-        print(prefix + "Global rank    : %i" % global_rank)
-        print(prefix + "World size     : %i" % world_size)
-        print(prefix + "GPUs per node  : %i" % n_gpu_per_node)
-        print(prefix + "Master         : %s" % str(is_master))
-        print(prefix + "Multi-node     : %s" % str(multi_node))
-        print(prefix + "Multi-GPU      : %s" % str(multi_gpu))
-        print(prefix + "Hostname       : %s" % socket.gethostname())
+        if local_rank == 0:
+            print(prefix + "Number of nodes: %i" % n_nodes)
+            print(prefix + "Node ID        : %i" % node_id)
+            print(prefix + "Local rank     : %i" % local_rank)
+            print(prefix + "Global rank    : %i" % global_rank)
+            print(prefix + "World size     : %i" % world_size)
+            print(prefix + "GPUs per node  : %i" % n_gpu_per_node)
+            print(prefix + "Master         : %s" % str(is_master))
+            print(prefix + "Multi-node     : %s" % str(multi_node))
+            print(prefix + "Multi-GPU      : %s" % str(multi_gpu))
+            print(prefix + "Hostname       : %s" % socket.gethostname())
     else:
         local_rank = int(os.environ["LOCAL_RANK"])
-    print("Initializing PyTorch distributed ...")
+    if local_rank == 0:
+        print("Initializing PyTorch distributed ...")
     init_process_group(init_method='env://', backend="nccl")
     torch.cuda.set_device(local_rank)
     return
@@ -141,5 +143,4 @@ def calculate_effective_batch_size(args):
             world_size = 1
 
     effective_batch_size = batch_size * world_size
-    print(f'Effective batch size: {effective_batch_size}')
     return effective_batch_size
