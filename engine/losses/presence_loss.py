@@ -49,6 +49,7 @@ def presence_loss_soft_tanh(maps: torch.Tensor):
 def presence_loss_original(maps: torch.Tensor):
     """
     Calculate presence loss for a feature map
+    Modified from: https://github.com/robertdvdk/part_detection/blob/eec53f2f40602113f74c6c1f60a2034823b0fcaf/train.py#L181
     :param maps: Attention map with shape (batch_size, channels, height, width) where channels is the landmark probability
     :return: value of the presence loss
     """

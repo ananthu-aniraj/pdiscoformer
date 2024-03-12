@@ -106,7 +106,7 @@ def parse_args():
 
     # * Optimizer params
     parser.add_argument('--optimizer_type', default='adam', type=str)
-    parser.add_argument('--weight_decay', default=0.05, type=float, help='normalized weight decay')
+    parser.add_argument('--weight_decay', default=0, type=float, help='normalized weight decay')
     parser.add_argument('--momentum', default=0.9, type=float)
     parser.add_argument('--betas1', default=0.9, type=float)
     parser.add_argument('--betas2', default=0.999, type=float)
@@ -117,7 +117,7 @@ def parse_args():
     parser.add_argument('--max_grad_norm', default=1.0, type=float)
 
     # * Scheduler params
-    parser.add_argument('--scheduler_type', default='cosine',
+    parser.add_argument('--scheduler_type', default='steplr',
                         choices=['cosine', 'linearlr', 'cosine_warmup_restart', 'steplr', 'cosine_with_warmup'],
                         type=str)
     parser.add_argument('--scheduler_warmup_epochs', default=0, type=int)
@@ -125,8 +125,8 @@ def parse_args():
     parser.add_argument('--scheduler_start_factor', default=0.333, type=float)
     parser.add_argument('--scheduler_end_factor', default=1.0, type=float)
     parser.add_argument('--scheduler_restart_factor', default=2, type=int)
-    parser.add_argument('--scheduler_gamma', default=0.1, type=float)
-    parser.add_argument('--scheduler_step_size', default=10, type=int)
+    parser.add_argument('--scheduler_gamma', default=0.5, type=float)
+    parser.add_argument('--scheduler_step_size', default=4, type=int)
     parser.add_argument('--min_lr', type=float, default=1e-6, metavar='LR',
                         help='lower lr bound for cyclic schedulers that hit 0 (1e-6)')
 
@@ -138,8 +138,8 @@ def parse_args():
 
     # Wandb params
     parser.add_argument('--wandb', action='store_true')
-    parser.add_argument('--wandb_project', default='fine-tune-cnn', type=str)
-    parser.add_argument('--job_type', default='fine_tune_dino_v2', type=str)
+    parser.add_argument('--wandb_project', default='', type=str)
+    parser.add_argument('--job_type', default='', type=str)
     parser.add_argument('--log_interval', default=10, type=int)
     parser.add_argument('--group', default='vit_base', type=str)
     parser.add_argument('--wandb_entity', default='', type=str)

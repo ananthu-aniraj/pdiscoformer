@@ -7,6 +7,7 @@ from utils.data_utils.reversible_affine_transform import rigid_transform
 def equivariance_loss(maps, equiv_maps, source, num_landmarks, translate, angle, scale, shear=0.0):
     """
     This function calculates the equivariance loss
+    Modified from: https://github.com/robertdvdk/part_detection/blob/eec53f2f40602113f74c6c1f60a2034823b0fcaf/train.py#L67
     :param maps: Attention map with shape (batch_size, channels, height, width) where channels is the landmark probability
     :param equiv_maps: Attention maps for same images after an affine transformation and then passed through the model
     :param source: Original mini-batch of images
