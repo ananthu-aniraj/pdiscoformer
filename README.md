@@ -24,6 +24,7 @@ Otherwise, you can also individually install the following packages:
 8. [timm](https://pypi.org/project/timm/)
 9. [wandb](https://pypi.org/project/wandb/): It is recommended to create an account and use it for tracking the experiments. Use the '--wandb' flag when running the training script to enable this feature.
 10. [pycocotools](https://pypi.org/project/pycocotools/)
+11. [pytopk](https://pypi.org/project/pytopk/)
 
 # Datasets
 ### CUB
