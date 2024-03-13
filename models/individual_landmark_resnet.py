@@ -1,7 +1,7 @@
 # Modified from https://github.com/robertdvdk/part_detection/blob/main/nets.py
 import torch
 from torch import Tensor
-from torch.nn import Softmax2d, Parameter
+from torch.nn import Parameter
 from typing import Any
 from .layers.independent_mlp import IndependentMLPs
 

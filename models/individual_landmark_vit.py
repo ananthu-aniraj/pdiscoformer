@@ -1,3 +1,4 @@
+# Compostion of the VisionTransformer class from timm.models.vision_transformer with extra features: https://github.com/huggingface/pytorch-image-models/blob/main/timm/models/vision_transformer.py
 import torch
 import torch.nn as nn
 from torch import Tensor
