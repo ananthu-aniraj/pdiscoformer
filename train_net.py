@@ -3,15 +3,15 @@ from timeit import default_timer as timer
 
 from argument_parser_train import parse_args
 from utils.data_utils.transform_utils import load_transforms
-from utils.training_utils.optimizer_params import build_optimizer, layer_group_matcher_pdisconet
+from utils.training_utils.optimizer_params import build_optimizer, layer_group_matcher_pdisco
 from utils.training_utils.scheduler_params import build_scheduler
 from utils.misc_utils import sync_bn_conversion, check_snapshot
 from utils.training_utils.ddp_utils import multi_gpu_check
 from utils.wandb_params import get_train_loggers
 from engine.distributed_trainer_pdisco import launch_pdisco_trainer
 from load_dataset import get_dataset
-from load_model import load_model_pdisconet
-from load_losses import load_classification_loss, load_pdisconet_loss_hyper_params
+from load_model import load_model_pdisco
+from load_losses import load_classification_loss, load_loss_hyper_params
 
 torch.backends.cudnn.benchmark = True
 
@@ -31,7 +31,7 @@ def pdisco_train_eval():
     dataset_train, dataset_test, num_cls = get_dataset(args, train_transforms, test_transforms)
 
     # Load the model
-    model = load_model_pdisconet(args, num_cls)
+    model = load_model_pdisco(args, num_cls)
 
     # Check if there are multiple GPUs
     use_ddp = multi_gpu_check()
@@ -43,10 +43,10 @@ def pdisco_train_eval():
     loss_fn, mixup_fn = load_classification_loss(args, dataset_train, num_cls)
 
     # Load the loss hyperparameters
-    loss_hyperparams, eq_affine_transform_params = load_pdisconet_loss_hyper_params(args)
+    loss_hyperparams, eq_affine_transform_params = load_loss_hyper_params(args)
 
     # Define the optimizer and scheduler
-    param_groups = layer_group_matcher_pdisconet(args, model)
+    param_groups = layer_group_matcher_pdisco(args, model)
     optimizer = build_optimizer(args, param_groups, dataset_train)
     scheduler = build_scheduler(args, optimizer)
     # Start the timer

@@ -126,7 +126,7 @@ def init_pdisco_model(base_model, args, num_cls):
     return model
 
 
-def load_model_pdisconet(args, num_cls):
+def load_model_pdisco(args, num_cls):
     """
     Function to load the model
     :param args: Arguments from the command line

@@ -5,7 +5,7 @@ From: https://github.com/zxhuang1698/interpretability-by-parts/blob/master/src/c
 import torch
 import torchvision.transforms as transforms
 from data_sets import CUB200, PartImageNetDataset, Flowers102Seg
-from load_model import load_model_pdisconet
+from load_model import load_model_pdisco
 import argparse
 import copy
 import os
@@ -127,7 +127,7 @@ def main(args):
     args.eval_only = True
     args.pretrained_start_weights = True
     # Load the model
-    net = load_model_pdisconet(args, num_cls)
+    net = load_model_pdisco(args, num_cls)
     snapshot_data = torch.load(args.model_path, map_location=torch.device('cpu'))
     if 'model_state' in snapshot_data:
         _, state_dict = load_state_dict_pdisco(snapshot_data)

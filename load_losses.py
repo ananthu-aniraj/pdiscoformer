@@ -44,9 +44,9 @@ def load_classification_loss(args, dataset_train, num_cls):
     return loss_fn, mixup_fn
 
 
-def load_pdisconet_loss_hyper_params(args):
+def load_loss_hyper_params(args):
     """
-    Load the hyperparameters for the loss functions used in PDiscoNet
+    Load the hyperparameters for the loss functions and affine transform parameters for equivariance
     :param args: Arguments from the argument parser
     :return:
     loss_hyperparams: Dictionary of loss hyperparameters

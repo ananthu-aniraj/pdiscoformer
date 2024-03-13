@@ -70,7 +70,7 @@ def calculate_weight_decay(args, dataset_train):
     return weight_decay
 
 
-def layer_group_matcher_pdisconet(args, model):
+def layer_group_matcher_pdisco(args, model):
     """
     Function to group the parameters of the model into different groups
     :param args: Arguments from the command line
