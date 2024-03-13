@@ -30,7 +30,7 @@ Otherwise, you can also individually install the following packages:
 ### CUB
 The dataset can be downloaded from [here](https://www.vision.caltech.edu/datasets/cub_200_2011/). 
 
-After downloading the datasets, the folder structure should look like this:
+The folder structure should look like this:
 
 ```
 CUB_200_2011
