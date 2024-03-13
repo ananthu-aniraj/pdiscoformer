@@ -25,4 +25,45 @@ Otherwise, you can also individually install the following packages:
 9. [wandb](https://pypi.org/project/wandb/): It is recommended to create an account and use it for tracking the experiments. Use the '--wandb' flag when running the training script to enable this feature.
 10. [pycocotools](https://pypi.org/project/pycocotools/)
 
+# Datasets
+### CUB
+The dataset can be downloaded from [here](https://www.vision.caltech.edu/datasets/cub_200_2011/). 
 
+After downloading the datasets, the folder structure should look like this:
+
+```
+CUB_200_2011
+├── attributes
+├── bounding_boxes.txt
+├── classes.txt
+├── images
+├── image_class_labels.txt
+├── images.txt
+├── parts
+├── README
+└── train_test_split.txt
+```
+
+### PartImageNet OOD
+The dataset can be downloaded from [here](https://github.com/TACJu/PartImageNet).
+After downloading the dataset, use the pre-processing script (prepare_partimagenet_ood.py) and train-test split (data_sets/train_test_split_pimagenet_ood.txt) to generate the required annotation files for training and evaluation.
+The command to run the pre-processing script is as follows:
+
+```python prepare_partimagenet_ood.py --anno_path <path to train.json file> --output_dir <path to save the train and test json file> --train_test_split_file data_sets/train_test_split_pimagenet_ood.txt```
+
+### Oxford Flowers
+The dataset is automatically downloaded by the training script with the required folder structure (except for the segmentation masks).
+If you want to evaluate the foreground segmentation on the dataset, please download the segmentations from [here](https://www.robots.ox.ac.uk/~vgg/data/flowers/102/).
+The final folder structure should look like this:
+
+```
+Oxford_Flowers (root folder)
+├── flowers-102
+    ├── segmim (folder containing the segmentation masks)
+    ├── jpg
+    ├── imagelabels.mat
+    └── setid.mat
+```
+### PartImageNet Seg
+The dataset can be downloaded from [here](https://github.com/TACJu/PartImageNet).
+There is no need for any post-processing as the dataset is already in the required format.
