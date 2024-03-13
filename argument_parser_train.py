@@ -1,4 +1,4 @@
-# Args Parser for PDiscoNet
+# Args Parser for training or evaluation (classification) of models
 import argparse
 
 

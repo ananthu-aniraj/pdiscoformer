@@ -16,7 +16,7 @@ from load_losses import load_classification_loss, load_pdisconet_loss_hyper_para
 torch.backends.cudnn.benchmark = True
 
 
-def pdisconet_train_eval():
+def pdisco_train_eval():
     args = parse_args()
 
     train_loggers = get_train_loggers(args)
@@ -87,4 +87,4 @@ def pdisconet_train_eval():
 
 
 if __name__ == "__main__":
-    pdisconet_train_eval()
+    pdisco_train_eval()
