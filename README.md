@@ -67,4 +67,3 @@ Oxford_Flowers (root folder)
 ```
 ### PartImageNet Seg
 The dataset can be downloaded from [here](https://github.com/TACJu/PartImageNet).
-There is no need for any post-processing as the dataset is already in the required format.
