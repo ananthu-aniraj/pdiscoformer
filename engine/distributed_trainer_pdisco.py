@@ -562,7 +562,7 @@ def launch_pdisco_trainer(model: torch.nn.Module,
                           ) -> None:
     """Trains and tests a PyTorch model.
 
-    Passes a target PyTorch models through PDiscoNetTrainer class
+    Passes a target PyTorch models through PDiscoTrainer class
      for a number of epochs, training and testing the model
     in the same epoch loop.
 
