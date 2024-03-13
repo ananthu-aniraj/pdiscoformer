@@ -16,7 +16,7 @@ Otherwise, you can also individually install the following packages:
 1. [PyTorch](https://pytorch.org/get-started/locally/): Tested upto version 2.2.1, please raise an issue if you face any problems with the latest version.
 2. [Colorcet](https://colorcet.holoviz.org/getting_started/index.html)
 3. [Matplotlib](https://matplotlib.org/stable/users/installing.html)
-3. [OpenCV](https://pypi.org/project/opencv-python/): It's recommended to use the headless version of opencv, as the GUI might not work on some systems without a display.
+3. [OpenCV](https://pypi.org/project/opencv-python-headless/)
 4. [Pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html)
 5. [Scikit-Image](https://scikit-image.org/docs/stable/install.html)
 6. [Scikit-Learn](https://scikit-learn.org/stable/install.html) 
