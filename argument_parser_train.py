@@ -4,7 +4,7 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='PDiscoNet trainer for Image Classification'
+        description='PDiscoFormer trainer for Image Classification'
     )
     parser.add_argument('--model_arch', default='resnet50', type=str,
                         help='pick model architecture')

@@ -22,7 +22,7 @@ from utils.wandb_params import init_wandb
 from .losses import *
 
 
-class PDiscoNetTrainer:
+class PDiscoTrainer:
     def __init__(
             self,
             model: torch.nn.Module,
@@ -533,33 +533,33 @@ class PDiscoNetTrainer:
         self.finish_logging()
 
 
-def trainer_pdisconet(model: torch.nn.Module,
-                      train_dataset: torch.utils.data.Dataset,
-                      test_dataset: torch.utils.data.Dataset,
-                      batch_size: int,
-                      optimizer: torch.optim.Optimizer,
-                      scheduler: torch.optim.lr_scheduler.LRScheduler,
-                      loss_fn: List[torch.nn.Module],
-                      epochs: int,
-                      save_every: int,
-                      loggers: List,
-                      log_freq: int,
-                      use_amp: bool = False,
-                      snapshot_path: str = "snapshot.pt",
-                      grad_norm_clip: float = 1.0,
-                      num_workers: int = 0,
-                      mixup_fn: Optional[Mixup] = None,
-                      seed: int = 42,
-                      eval_only: bool = False,
-                      loss_hyperparams: Optional[Dict] = None,
-                      eq_affine_transform_params: Optional[Dict] = None,
-                      use_ddp: bool = False,
-                      sub_path_test: str = "",
-                      dataset_name: str = "",
-                      amap_saving_prob: float = 0.05,
-                      class_balanced_sampling: bool = False,
-                      num_samples_per_class: int = 100,
-                      ) -> None:
+def launch_pdisco_trainer(model: torch.nn.Module,
+                          train_dataset: torch.utils.data.Dataset,
+                          test_dataset: torch.utils.data.Dataset,
+                          batch_size: int,
+                          optimizer: torch.optim.Optimizer,
+                          scheduler: torch.optim.lr_scheduler.LRScheduler,
+                          loss_fn: List[torch.nn.Module],
+                          epochs: int,
+                          save_every: int,
+                          loggers: List,
+                          log_freq: int,
+                          use_amp: bool = False,
+                          snapshot_path: str = "snapshot.pt",
+                          grad_norm_clip: float = 1.0,
+                          num_workers: int = 0,
+                          mixup_fn: Optional[Mixup] = None,
+                          seed: int = 42,
+                          eval_only: bool = False,
+                          loss_hyperparams: Optional[Dict] = None,
+                          eq_affine_transform_params: Optional[Dict] = None,
+                          use_ddp: bool = False,
+                          sub_path_test: str = "",
+                          dataset_name: str = "",
+                          amap_saving_prob: float = 0.05,
+                          class_balanced_sampling: bool = False,
+                          num_samples_per_class: int = 100,
+                          ) -> None:
     """Trains and tests a PyTorch model.
 
     Passes a target PyTorch models through PDiscoNetTrainer class
@@ -602,19 +602,19 @@ def trainer_pdisconet(model: torch.nn.Module,
     if use_ddp:
         ddp_setup()
 
-    model_trainer = PDiscoNetTrainer(model=model, train_dataset=train_dataset, test_dataset=test_dataset,
-                                     batch_size=batch_size, optimizer=optimizer, scheduler=scheduler,
-                                     loss_fn=loss_fn,
-                                     save_every=save_every, snapshot_path=snapshot_path, loggers=loggers,
-                                     log_freq=log_freq,
-                                     use_amp=use_amp,
-                                     grad_norm_clip=grad_norm_clip, max_epochs=epochs, num_workers=num_workers,
-                                     mixup_fn=mixup_fn, eval_only=eval_only, loss_hyperparams=loss_hyperparams,
-                                     eq_affine_transform_params=eq_affine_transform_params, use_ddp=use_ddp,
-                                     sub_path_test=sub_path_test, dataset_name=dataset_name,
-                                     amap_saving_prob=amap_saving_prob,
-                                     class_balanced_sampling=class_balanced_sampling,
-                                     num_samples_per_class=num_samples_per_class)
+    model_trainer = PDiscoTrainer(model=model, train_dataset=train_dataset, test_dataset=test_dataset,
+                                  batch_size=batch_size, optimizer=optimizer, scheduler=scheduler,
+                                  loss_fn=loss_fn,
+                                  save_every=save_every, snapshot_path=snapshot_path, loggers=loggers,
+                                  log_freq=log_freq,
+                                  use_amp=use_amp,
+                                  grad_norm_clip=grad_norm_clip, max_epochs=epochs, num_workers=num_workers,
+                                  mixup_fn=mixup_fn, eval_only=eval_only, loss_hyperparams=loss_hyperparams,
+                                  eq_affine_transform_params=eq_affine_transform_params, use_ddp=use_ddp,
+                                  sub_path_test=sub_path_test, dataset_name=dataset_name,
+                                  amap_saving_prob=amap_saving_prob,
+                                  class_balanced_sampling=class_balanced_sampling,
+                                  num_samples_per_class=num_samples_per_class)
     if eval_only:
         model_trainer.test_only()
     else:
