@@ -18,6 +18,17 @@ def load_json(path: str):
     return data
 
 
+def save_json(data: dict, path: str):
+    """
+    Save data to a json file
+    :param data: Data to be saved
+    :param path: Path to save the data
+    :return:
+    """
+    with open(path, "w") as f:
+        json.dump(data, f)
+
+
 def pil_loader(path):
     """
     Load image from path using PIL
@@ -147,5 +158,3 @@ def _get_center_crop_params_(image_height: int, image_width: int, output_size: O
     crop_left = int(round((image_width - crop_width) / 2.0))
 
     return crop_top, crop_left
-
-
