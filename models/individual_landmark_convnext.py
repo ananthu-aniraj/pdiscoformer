@@ -1,6 +1,6 @@
 import torch
 from torch import Tensor
-from torch.nn import Softmax2d, Parameter
+from torch.nn import Parameter
 from typing import Any
 from .layers.independent_mlp import IndependentMLPs
 
