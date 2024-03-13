@@ -12,3 +12,17 @@ Computer vision methods that explicitly detect object parts and reason on them a
 To install the required packages, run the following command:
 ```conda env create -f environment.yml```
 
+Otherwise, you can also individually install the following packages:
+1. [PyTorch] (https://pytorch.org/get-started/locally/): Tested upto version 2.2.1, please raise an issue if you face any problems with the latest version.
+2. [Colorcet] (https://colorcet.holoviz.org/getting_started/index.html)
+3. [Matplotlib] (https://matplotlib.org/stable/users/installing.html)
+3. [OpenCV] (https://pypi.org/project/opencv-python/): It's recommended to use the headless version of opencv, as the GUI might not work on some systems without a display.
+4. [Pandas] (https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html)
+5. [Scikit-Image] (https://scikit-image.org/docs/stable/install.html)
+6. [Scikit-Learn] (https://scikit-learn.org/stable/install.html) 
+7. [TorchMetrics] (https://torchmetrics.readthedocs.io/en/latest/pages/install.html)
+8. [timm](https://pypi.org/project/timm/)
+9. [wandb](https://pypi.org/project/wandb/): Used for experiment tracking. It is recommended to create an account and use it for tracking the experiments. Use the '--wandb' flag when running the training script to enable this feature.
+10. [pycocotools](https://pypi.org/project/pycocotools/)
+
+

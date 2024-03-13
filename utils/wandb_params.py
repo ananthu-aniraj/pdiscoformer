@@ -3,6 +3,7 @@ import copy
 
 
 def init_wandb(args):
+    wandb.login()
     if isinstance(args, dict):
         args_dict = args
     else:
@@ -27,7 +28,6 @@ def get_train_loggers(args):
     """Get the train loggers for the experiment"""
     train_loggers = []
     if args.wandb:
-        wandb.login()
         wandb_logger_settings = copy.deepcopy(vars(args))
         train_loggers.append(wandb_logger_settings)
     return train_loggers
