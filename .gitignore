@@ -34,7 +34,6 @@ wheels/
 
 # Results temporary
 *.png
-*.txt
 *.tsv
 wandb/
 exps/
