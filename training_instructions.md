@@ -137,7 +137,7 @@ Feel free to modify these values if it is required for your experiments.
 ### Extra Notes
 - If you wish to train on a single GPU, you can remove the `torchrun` command and the `--nnodes` and `--nproc_per_node` flags. Then run it as `python <base path to the code>/train_net.py <arguments>`.
 - Please note that the code is written with the assumption that all the visible GPUs are to be used for training. If you want to use a subset of the GPUs, you will have to manually set the `CUDA_VISIBLE_DEVICES` environment variable before running the training script. This is automatically done in slurm and other job schedulers environments, so you don`t have to worry about it in those cases.
-- The `--pretrained_start_weights` flag is used to load the pre-trained weights for the backbone. This requires an internet connection to download the weights from the timm library. If you want to train from scratch, you can remove this flag.
+- The `--pretrained_start_weights` flag is used to load the pre-trained weights for the backbone. This requires an active internet connection.
 -  The weights will be saved in the `~/.cache/torch/hub/checkpoints` directory which is automatically detected in our code, if already present.
 - For ResNet models, we support both the timm and torchvision implementations. However, please note that all the works on part discovery in the literature, to the best of our knowledge, use the torchvision weights.
  If you wish to use the torchvision implementation, you can use the `--use_torchvision_resnet_model` flag.  
