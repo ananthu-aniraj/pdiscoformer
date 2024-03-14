@@ -241,7 +241,7 @@ class PDiscoTrainer:
                 pin_memory=True,
                 shuffle=False,
                 num_workers=num_workers,
-                drop_last=drop_last,
+                drop_last=True,
                 sampler=ClassBalancedRandomSampler(dataset, num_samples_per_class=self.num_samples_per_class))
         else:
             return torch.utils.data.DataLoader(
