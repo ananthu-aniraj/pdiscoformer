@@ -39,4 +39,5 @@
 - `--num_parts`: The number of foreground parts predicted by the model. This is the same value that was used during training.
 - `--center_crop`: This flag is necessary for evaluation on Vision Transformers. It crops the center of the image to the required size before evaluation. This is necessary because the Vision Transformer model requires a fixed input size. Additionally, if you want to evaluate with batch size > 1, you need to use the `--center_crop` flag.
 - `--model_path`: The path to the model checkpoint.
+- `--dataset`: The name of the dataset. This is used to load the dataset and the corresponding evaluation metrics. The options are: `cub`, `part_imagenet` and `flowers102seg`.
 
