@@ -119,7 +119,7 @@ torchrun \
 - `--save_every_n_epochs`: The interval at which the checkpoints as well as (optionally) part assignment maps are saved. The default value is 16. Feel free to change this value as required. By default, the checkpoint with the best validation accuracy and the last checkpoint are saved. We use the model with the best validation accuracy for evaluation in the paper. 
 - `--amap_saving_prob`: The probability of saving the part assignment maps. This is triggered on the first epoch, every save_every_n_epochs epoch and the last epoch. Set it to 0 to turn it off and 1 if you want to save it for every iteration. We recommend using a value of 0.05 during training and higher values such as 0.8 for evaluation. This can cause a significant slowdown during training as the maps are saved as images. 
 
-## Optimizer and Scheduler Parameters
+### Optimizer and Scheduler Parameters
 - `--optimizer_type`: The type of optimizer to use. The default value is `adam`. We use this value for all the experiments in the paper.
 - `--scheduler_type`: The type of scheduler to use. The default value is `steplr`. We use this value for all the experiments in the paper.
 - `--scheduler_gamma`: The gamma value for the scheduler. The default value is 0.5. We use this value for all the experiments in the paper.
