@@ -13,7 +13,7 @@ To install the required packages, run the following command:
 ```conda env create -f environment.yml```
 
 Otherwise, you can also individually install the following packages:
-1. [PyTorch](https://pytorch.org/get-started/locally/): Tested upto version 2.2.1, please raise an issue if you face any problems with the latest version.
+1. [PyTorch](https://pytorch.org/get-started/locally/): Tested upto version 2.2.1, please raise an issue if you face any problems with more recent versions.
 2. [Colorcet](https://colorcet.holoviz.org/getting_started/index.html)
 3. [Matplotlib](https://matplotlib.org/stable/users/installing.html)
 3. [OpenCV](https://pypi.org/project/opencv-python-headless/)
@@ -58,12 +58,24 @@ If you want to evaluate the foreground segmentation on the dataset, please downl
 The final folder structure should look like this:
 
 ```
-Oxford_Flowers (root folder)
-├── flowers-102
+(root folder)
+├── flowers-102 (folder containing the dataset created automatically by the training script)
     ├── segmim (folder containing the segmentation masks)
     ├── jpg
     ├── imagelabels.mat
     └── setid.mat
 ```
 ### PartImageNet Seg
-The dataset can be downloaded from [here](https://github.com/TACJu/PartImageNet).
+The dataset can be downloaded from [here](https://github.com/TACJu/PartImageNet). No additional pre-processing is required.
+
+# Training
+The details of running the training script can be found in the [training instructions](training_instructions.md) file.
+
+# Evaluation
+The details of running the evaluation metrics for both classification and part discovery can be found in the [evaluation instructions](evaluation_instructions.md) file.
+
+# Models
+The models trained in the paper will be released soon.
+
+
+

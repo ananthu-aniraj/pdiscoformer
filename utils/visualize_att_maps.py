@@ -1,4 +1,5 @@
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -10,7 +11,6 @@ import os
 import torch
 
 from utils.data_utils.transform_utils import inverse_normalize_w_resize
-from utils.get_landmark_coordinates import landmark_coordinates
 from utils.misc_utils import factors
 
 # Define the colors to use for the attention maps
@@ -18,7 +18,7 @@ colors = cc.glasbey_category10
 
 
 class VisualizeAttentionMaps:
-    def __init__(self, snapshot_dir="", save_resolution=(256, 256), alpha=0.5, vis_kp=False, sub_path_test="",
+    def __init__(self, snapshot_dir="", save_resolution=(256, 256), alpha=0.5, sub_path_test="",
                  dataset_name="", bg_label=0, batch_size=32, num_parts=15, plot_ims_separately=False,
                  plot_landmark_amaps=False):
         """
@@ -26,7 +26,6 @@ class VisualizeAttentionMaps:
         :param snapshot_dir: Directory to save the visualization results
         :param save_resolution: Size of the images to save
         :param alpha: The transparency of the attention maps
-        :param vis_kp: Whether to visualize the landmark centroids
         :param sub_path_test: The sub-path of the test dataset
         :param dataset_name: The name of the dataset
         :param bg_label: The background label index in the attention maps
@@ -37,7 +36,6 @@ class VisualizeAttentionMaps:
         """
         self.save_resolution = save_resolution
         self.alpha = alpha
-        self.vis_kp = vis_kp
         self.sub_path_test = sub_path_test
         self.dataset_name = dataset_name
         self.bg_label = bg_label
@@ -56,8 +54,14 @@ class VisualizeAttentionMaps:
             self.figs_size = (10, 10)
         else:
             self.figs_size = (self.ncols * 2, self.nrows * 2)
-        self.grid_x_landmark = None
-        self.grid_y_landmark = None
+
+    def recalculate_nrows_ncols(self):
+        self.nrows = factors(self.batch_size)[-1]
+        self.ncols = factors(self.batch_size)[-2]
+        if self.nrows == 1 and self.ncols == 1:
+            self.figs_size = (10, 10)
+        else:
+            self.figs_size = (self.ncols * 2, self.nrows * 2)
 
     @torch.no_grad()
     def show_maps(self, ims, maps, epoch=0, curr_iter=0, extra_info=""):
@@ -76,19 +80,10 @@ class VisualizeAttentionMaps:
         extra_info: str
             Any extra information to add to the file name
         """
-
-        if self.vis_kp:
-            if self.grid_x_landmark is None or self.grid_y_landmark is None:
-                grid_x_landmark, grid_y_landmark = torch.meshgrid(torch.arange(maps.shape[2]),
-                                                                  torch.arange(maps.shape[3]), indexing='ij')
-                self.grid_x_landmark = grid_x_landmark.unsqueeze(0).unsqueeze(0).contiguous().to(maps.device,
-                                                                                                 non_blocking=True)
-                self.grid_y_landmark = grid_y_landmark.unsqueeze(0).unsqueeze(0).contiguous().to(maps.device,
-                                                                                                 non_blocking=True)
-            # Get landmark coordinates
-            loc_x, loc_y = landmark_coordinates(maps, self.grid_x_landmark, self.grid_y_landmark)
-
         ims = self.resize_unnorm(ims)
+        if ims.shape[0] != self.batch_size:
+            self.batch_size = ims.shape[0]
+            self.recalculate_nrows_ncols()
         fig, axs = plt.subplots(nrows=self.nrows, ncols=self.ncols, squeeze=False, figsize=self.figs_size)
         ims = (ims.permute(0, 2, 3, 1).cpu().numpy() * 255).astype(np.uint8)
         map_argmax = torch.nn.functional.interpolate(maps.clone().detach(), size=self.save_resolution,
@@ -99,11 +94,6 @@ class VisualizeAttentionMaps:
                                                bg_label=self.bg_label, alpha=self.alpha)
             ax.imshow(curr_map)
             ax.axis('off')
-            if self.vis_kp:
-                ax.scatter(loc_y[i, 0:-1].detach().cpu() * 256 / maps.shape[-1],
-                           loc_x[i, 0:-1].detach().cpu() * 256 / maps.shape[-1], c=colors[0:loc_x.shape[1] - 1],
-                           marker='x')
-
         save_dir = Path(os.path.join(self.snapshot_dir, 'results_vis_' + self.sub_path_test))
         save_dir.mkdir(parents=True, exist_ok=True)
         save_path = os.path.join(save_dir, f'{epoch}_{curr_iter}_{self.dataset_name}{extra_info}.png')
