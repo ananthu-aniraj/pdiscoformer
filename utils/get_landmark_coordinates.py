@@ -5,6 +5,7 @@ import torch
 def landmark_coordinates(maps, grid_x=None, grid_y=None):
     """
     Generate the center coordinates as tensor for the current net.
+    Modified from: https://github.com/robertdvdk/part_detection/blob/eec53f2f40602113f74c6c1f60a2034823b0fcaf/lib.py#L19
     Parameters
     ----------
     maps: torch.Tensor

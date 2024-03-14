@@ -1,3 +1,4 @@
+# Adapted from: https://pytorch.org/vision/stable/_modules/torchvision/datasets/flowers102.html#Flowers102
 from torchvision import datasets
 import PIL
 from typing import Tuple, Any

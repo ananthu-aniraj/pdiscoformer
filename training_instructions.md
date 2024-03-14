@@ -141,6 +141,6 @@ Feel free to modify these values if it is required for your experiments.
 -  The weights will be saved in the `~/.cache/torch/hub/checkpoints` directory which is automatically detected in our code, if already present.
 - For ResNet models, we support both the timm and torchvision implementations. However, please note that all the works on part discovery in the literature, to the best of our knowledge, use the torchvision version.
 - (OPTIONAL) If you do not have an active internet connection, it is also possible to separately run the `create_model()` function [here](https://huggingface.co/timm/vit_base_patch14_reg4_dinov2.lvd142m) to download the weights for the vit-base model. This will auto-detect the `~/.cache/torch/hub/checkpoints` directory and save the weights there. Similarly, for the resnet model, use the [get_model function](https://pytorch.org/vision/stable/models.html#listing-and-retrieving-available-models) for torchvision with `weights="DEFAULT"` or the `create_model()` [here](https://huggingface.co/timm/resnet101.a1h_in1k) for the timm weights.
-
+- The [ClassBalancedDistributedSampler](utils/data_utils/class_balanced_distributed_sampler.py) and [ClassBalancedSampler](utils/data_utils/class_balanced_sampler.py) classes can be used to balance the classes in the mini-batches. We do not use these in the paper, so the corresponding flags are set to `False` by default. We have not tested these extensively, so please use them with caution.
 
 
