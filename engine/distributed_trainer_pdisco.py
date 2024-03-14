@@ -75,7 +75,7 @@ class PDiscoTrainer:
         self.num_samples_per_class = num_samples_per_class
         self.train_loader = self._prepare_dataloader(train_dataset, num_workers=num_workers,
                                                      class_balanced_sampling=class_balanced_sampling)
-        self.test_loader = self._prepare_dataloader(test_dataset, num_workers=num_workers)
+        self.test_loader = self._prepare_dataloader(test_dataset, num_workers=num_workers, drop_last=False)
         if len(loss_fn) == 1:
             self.loss_fn_train = self.loss_fn_eval = loss_fn[0]
         else:
@@ -230,7 +230,7 @@ class PDiscoTrainer:
             )
 
     def _prepare_dataloader(self, dataset: torch.utils.data.Dataset, num_workers: int = 4,
-                            class_balanced_sampling: bool = False):
+                            class_balanced_sampling: bool = False, drop_last: bool = True):
         if self.use_ddp:
             return self._prepare_dataloader_ddp(dataset, num_workers, class_balanced_sampling)
 
@@ -241,7 +241,7 @@ class PDiscoTrainer:
                 pin_memory=True,
                 shuffle=False,
                 num_workers=num_workers,
-                drop_last=True,
+                drop_last=drop_last,
                 sampler=ClassBalancedRandomSampler(dataset, num_samples_per_class=self.num_samples_per_class))
         else:
             return torch.utils.data.DataLoader(
@@ -250,7 +250,7 @@ class PDiscoTrainer:
                 pin_memory=True,
                 shuffle=False,
                 num_workers=num_workers,
-                drop_last=True,
+                drop_last=drop_last,
             )
 
     def _load_snapshot(self) -> None:
