@@ -12,8 +12,7 @@ def parse_args():
 
     # Data
     parser.add_argument('--data_path',
-                        help='directory that contains cub files, must'
-                             'contain folder "./images"', required=True)
+                        help='directory that contains cub files', required=True)
     parser.add_argument('--image_sub_path_train', default='images',
                         help='subdirectory that contains training images')
     parser.add_argument('--image_sub_path_test', default='images',
@@ -22,8 +21,6 @@ def parse_args():
     parser.add_argument('--train_split', default=0.9, type=float, help='fraction of training data to use')
     parser.add_argument('--eval_mode', default='val', choices=['train', 'val', 'test'], type=str,
                         help='which split to use for evaluation')
-    parser.add_argument('--csv_sub_path_train', default='train_metadata.csv', type=str, required=False)
-    parser.add_argument('--csv_sub_path_test', default='val_metadata.csv', type=str, required=False)
     parser.add_argument('--anno_path_train', default='', type=str, required=False)
     parser.add_argument('--anno_path_test', default='', type=str, required=False)
     parser.add_argument('--metadata_path', default='', type=str, required=False)
@@ -45,7 +42,7 @@ def parse_args():
     parser.add_argument('--amap_saving_prob', default=0.05, type=float)
 
     # * Misc training params
-    parser.add_argument('--grad_norm_clip', default=0.0, type=float)
+    parser.add_argument('--grad_norm_clip', default=2.0, type=float)
     parser.add_argument('--use_amp', action='store_true', default=False)
 
     # Evaluation params
@@ -76,8 +73,8 @@ def parse_args():
                         help='Color jitter factor (default: 0.1)')
     parser.add_argument('--aa', type=str, default='rand-m9-mstd0.5-inc1', metavar='NAME',
                         help='Use AutoAugment policy. "v0" or "original". " + "(default: rand-m9-mstd0.5-inc1)'),
-    parser.add_argument('--smoothing', type=float, default=0.1,
-                        help='Label smoothing (default: 0.1)')
+    parser.add_argument('--smoothing', type=float, default=0.0,
+                        help='Label smoothing (default: 0.)')
     parser.add_argument('--train_interpolation', type=str, default='bicubic',
                         help='Training interpolation (random, bilinear, bicubic default: "bicubic")')
     parser.add_argument('--imagenet_default_mean_and_std', action='store_false', default=True)
@@ -131,10 +128,10 @@ def parse_args():
                         help='lower lr bound for cyclic schedulers that hit 0 (1e-6)')
 
     # * LR params for each param group
-    parser.add_argument('--lr', default=1e-4, type=float)
-    parser.add_argument('--scratch_lr_factor', default=100.0, type=float)
-    parser.add_argument('--finer_lr_factor', default=10.0, type=float)
-    parser.add_argument('--modulation_lr_factor', default=100.0, type=float)
+    parser.add_argument('--lr', default=1e-6, type=float)
+    parser.add_argument('--scratch_lr_factor', default=1e4, type=float)
+    parser.add_argument('--finer_lr_factor', default=1e3, type=float)
+    parser.add_argument('--modulation_lr_factor', default=1e4, type=float)
 
     # Wandb params
     parser.add_argument('--wandb', action='store_true')

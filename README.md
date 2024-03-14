@@ -77,5 +77,7 @@ The details of running the evaluation metrics for both classification and part d
 # Models
 The models trained in the paper will be released soon.
 
+Feel free to raise an issue if you face any problems with the code or have any questions about the paper.
+
 
 
