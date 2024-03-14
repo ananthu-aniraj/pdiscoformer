@@ -2,7 +2,7 @@
 
 This document contains the instructions to train the models for the experiments in the paper.
 
-The code has been designed to work with both single and multi-GPU training (including multi-node training) using PyTorch`s Distributed Data Parallel (DDP) and the `torchrun` utility from [torchelastic](https://pytorch.org/docs/stable/elastic/run.html). It is also designed to auto-detect slurm environments and set the appropriate environment variables for multi-gpu training in DDP.
+The code has been designed to work with both single and multi-GPU training (including multi-node training) using PyTorch's Distributed Data Parallel (DDP) and the `torchrun` utility from [torchelastic](https://pytorch.org/docs/stable/elastic/run.html). It is also designed to auto-detect slurm environments and set the appropriate environment variables for multi-gpu training in DDP.
 
 ## Experiment Tracking
 It is recommended to use [Weights and Biases](https://wandb.ai/site) for tracking the experiments. The `--wandb` flag can be used to enable this feature. Feel free to remove the `--wandb` flag if you don`t want to use it.
