@@ -2,19 +2,19 @@
 import os
 import pandas as pd
 import PIL.Image
-from skimage.io import imread
 import torch.utils.data
 import numpy as np
 import PIL.Image
 import torch
 import torch.utils.data
 from collections import defaultdict
-from utils.data_utils.dataset_utils import pil_loader, _center_crop_boxes_kps_
+from utils.data_utils.dataset_utils import pil_loader, center_crop_boxes_kps
+from utils.misc_utils import file_line_count
 
 
-class CUBDataset(torch.utils.data.Dataset):
+class FineGrainedBirdClassificationDataset(torch.utils.data.Dataset):
     """
-    CUB200-2011 dataset.
+    A general class for fine-grained bird classification datasets. Tested for CUB200-2011 and NABirds.
     Variables
     ----------
         data_path, str: Root directory of the dataset.
@@ -23,54 +23,51 @@ class CUBDataset(torch.utils.data.Dataset):
             "train": Training split
             "val": Validation split
             "test": Testing split
-        height, int: Height of the images
         transform, callable: A function/transform that takes in a PIL.Image and transforms it.
-        train_samples, list: List of training samples to use for validation
         image_sub_path, str: Path to the folder containing the images.
     """
-    def __init__(self, data_path, split=1, mode='train', height: int = 256,
-                 transform=None, train_samples=None, image_sub_path="images"):
+
+    def __init__(self, data_path, split=1, mode='train', transform=None, image_sub_path="images"):
         self.data_path = data_path
         self.mode = mode
         self.transform = transform
         self.image_sub_path = image_sub_path
-        train_test = pd.read_csv(os.path.join(data_path, 'train_test_split.txt'), delim_whitespace=True,
+        self.loader = pil_loader
+        train_test = pd.read_csv(os.path.join(data_path, 'train_test_split.txt'), sep='\s+',
                                  names=['id', 'train'])
-        image_names = pd.read_csv(os.path.join(data_path, 'images.txt'), delim_whitespace=True,
+        image_names = pd.read_csv(os.path.join(data_path, 'images.txt'), sep='\s+',
                                   names=['id', 'filename'])
-        labels = pd.read_csv(os.path.join(data_path, 'image_class_labels.txt'), delim_whitespace=True,
+        labels = pd.read_csv(os.path.join(data_path, 'image_class_labels.txt'), sep='\s+',
                              names=['id', 'label'])
-        image_parts = pd.read_csv(os.path.join(data_path, 'parts', 'part_locs.txt'), delim_whitespace=True,
+        image_parts = pd.read_csv(os.path.join(data_path, 'parts', 'part_locs.txt'), sep='\s+',
                                   names=['id', 'part_id', 'x', 'y', 'visible'])
         dataset = train_test.merge(image_names, on='id')
         dataset = dataset.merge(labels, on='id')
 
         if mode == 'train':
             dataset = dataset.loc[dataset['train'] == 1]
-            samples = np.arange(len(dataset))
-            np.random.shuffle(samples)
-            self.trainsamples = samples[:int(len(samples) * split)]
-            dataset = dataset.iloc[self.trainsamples]
+            samples_train = np.arange(len(dataset))
+            self.train_samples = samples_train[:int(len(samples_train) * split)]
+            dataset = dataset.iloc[self.train_samples]
         elif mode == 'test':
             dataset = dataset.loc[dataset['train'] == 0]
         elif mode == 'val':
             dataset = dataset.loc[dataset['train'] == 1]
-            if train_samples is None:
-                raise RuntimeError('Please provide the list of training samples'
-                                   'to the validation dataset')
-            dataset = dataset.drop(dataset.index[train_samples])
+            samples_val = np.arange(len(dataset))
+            self.val_samples = samples_val[int(len(samples_val) * split):]
+            dataset = dataset.iloc[self.val_samples]
 
         # training images are labelled 1, test images labelled 0. Add these
         # images to the list of image IDs
-        self.ids = np.array(dataset['id'])
-        self.names = np.array(dataset['filename'])
-        # Subtract 1 because classes run from 1-200 instead of 0-199
-        self.labels = np.array(dataset['label']) - 1
-        parts = {}
-        for i in self.ids:
-            parts[i] = image_parts[image_parts['id'] == i]
-        self.parts = parts
-        self.height = height
+        self.ids = dataset['id'].to_numpy()
+        self.names = dataset['filename'].to_numpy()
+        # Handle the case where the labels are not 0-indexed and there are gaps
+        labels_to_array = dataset['label'].to_numpy()
+        labels_to_index = {label: i for i, label in enumerate(np.unique(labels_to_array))}
+        self.labels = np.array([labels_to_index[label] for label in labels_to_array])
+        self.new_to_orig_label = {i: label for i, label in enumerate(np.unique(labels_to_array))}
+        image_parts = image_parts.loc[image_parts['id'].isin(self.ids)]
+        self.parts = image_parts[image_parts['visible'] == 1]
         self.num_classes = len(np.unique(self.labels))
         self.per_class_count = defaultdict(int)
         for label in self.labels:
@@ -82,15 +79,11 @@ class CUBDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         image_path = os.path.join(self.data_path, self.image_sub_path, self.names[idx])
-        im = imread(image_path)
+        im = self.loader(image_path)
         label = self.labels[idx]
 
-        if len(im.shape) == 2:
-            im = np.stack((im,) * 3, axis=-1)
-
         if self.transform:
-            im_orig = PIL.Image.fromarray(im)
-            im = self.transform(im_orig)
+            im = self.transform(im)
 
         return im, label
 
@@ -103,28 +96,28 @@ class CUBDataset(torch.utils.data.Dataset):
             The index for which to retrieve the visible parts
         """
         dataset_id = self.ids[idx]
-        parts = self.parts[dataset_id]
+        parts = self.parts[self.parts['id'] == dataset_id].loc[:, ["part_id"]].to_numpy()
         return parts
 
 
-class CUB200(torch.utils.data.Dataset):
+class FineGrainedBirdClassificationParts(torch.utils.data.Dataset):
     """
-    From: https://github.com/zxhuang1698/interpretability-by-parts/
-    CUB200 dataset.
+    Class for evaluating part detection/discovery on CUB200-2011 dataset. Also tested on NABirds.
+    Adapted from: https://github.com/zxhuang1698/interpretability-by-parts/
     Variables
     ----------
         _root, str: Root directory of the dataset.
         _train, bool: Load train/test data.
         _transform, callable: A function/transform that takes in a PIL.Image
             and transforms it.
-        _train_data, list of np.array.
-        _train_labels, list of int.
-        _train_parts, list np.array.
-        _train_boxes, list np.array.
-        _test_data, list of np.array.
-        _test_labels, list of int.
-        _test_parts, list np.array.
-        _test_boxes, list np.array.
+        _train_data, list of str: List of paths to the training images.
+        _train_labels, np.array: List of labels for the training images.
+        _train_parts, torch.FloatTensor: List of part annotations for the training images.
+        _train_boxes, torch.FloatTensor: List of bounding box annotations for the training images.
+        _test_data, list of str: List of paths to the testing images.
+        _test_labels, np.array: List of labels for the testing images.
+        _test_parts, torch.FloatTensor: List of part annotations for the testing images.
+        _test_boxes, torch.FloatTensor: List of bounding box annotations for the testing images.
     """
 
     def __init__(self, root, train=True, transform=None, resize=448, center_crop=False, image_sub_path="images"):
@@ -149,7 +142,7 @@ class CUB200(torch.utils.data.Dataset):
         self.center_crop = center_crop
         self.image_sub_path = image_sub_path
         # 15 key points provided by CUB
-        self.num_kps = 15
+        self.num_kps = file_line_count(os.path.join(root, 'parts', 'parts.txt'))
 
         if not os.path.isdir(root):
             os.mkdir(root)
@@ -158,15 +151,11 @@ class CUB200(torch.utils.data.Dataset):
         # Load all data into memory for best IO efficiency. This might take a while
         if self._train:
             self._train_data, self._train_labels, self._train_parts, self._train_boxes = self._get_file_list(train=True)
-            assert (len(self._train_data) == 5994
-                    and len(self._train_labels) == 5994)
             self.num_classes = len(np.unique(self._train_labels))
             for label in self._train_labels:
                 self.per_class_count[label] += 1
         else:
             self._test_data, self._test_labels, self._test_parts, self._test_boxes = self._get_file_list(train=False)
-            assert (len(self._test_data) == 5794
-                    and len(self._test_labels) == 5794)
             self.num_classes = len(np.unique(self._test_labels))
             for label in self._test_labels:
                 self.per_class_count[label] += 1
@@ -208,10 +197,6 @@ class CUB200(torch.utils.data.Dataset):
         image = self.loader(image_path)
         image = np.array(image)
 
-        # numpy arrays to pytorch tensors
-        parts = torch.from_numpy(parts).float()
-        boxes = torch.from_numpy(boxes).float()
-
         # calculate the resize factor
         # if original image height is larger than width, the real resize factor is based on width
         if image.shape[0] >= image.shape[1]:
@@ -242,8 +227,8 @@ class CUB200(torch.utils.data.Dataset):
 
         # center crop
         if self.center_crop:
-            image, parts, boxes = _center_crop_boxes_kps_(image, self.newsize, parts, boxes, self.num_kps)
-        return image, target, parts, boxes, image_path
+            image, parts, boxes = center_crop_boxes_kps(image, self.newsize, parts, boxes, self.num_kps)
+        return image, target, parts, boxes
 
     def __len__(self):
         """Return the length of the dataset."""
@@ -256,48 +241,51 @@ class CUB200(torch.utils.data.Dataset):
 
         # load the list into numpy arrays
         image_path = os.path.join(self._root, self.image_sub_path)
-        id2name = np.genfromtxt(os.path.join(self._root, 'images.txt'), dtype=str)
-        id2train = np.genfromtxt(os.path.join(self._root, 'train_test_split.txt'), dtype=int)
-        id2part = np.genfromtxt(os.path.join(self._root, 'parts', 'part_locs.txt'), dtype=float)
-        id2box = np.genfromtxt(os.path.join(self._root, 'bounding_boxes.txt'), dtype=float)
+        train_test = pd.read_csv(os.path.join(self._root, 'train_test_split.txt'), sep='\s+',
+                                 names=['id', 'train'])
+        image_names = pd.read_csv(os.path.join(self._root, 'images.txt'), sep='\s+',
+                                  names=['id', 'filename'])
+        labels = pd.read_csv(os.path.join(self._root, 'image_class_labels.txt'), sep='\s+',
+                             names=['id', 'label'])
+        image_parts = pd.read_csv(os.path.join(self._root, 'parts', 'part_locs.txt'), sep='\s+',
+                                  names=['id', 'part_id', 'x', 'y', 'visible'])
+        image_boxes = pd.read_csv(os.path.join(self._root, 'bounding_boxes.txt'), sep='\s+',
+                                  names=['id', 'x', 'y', 'width', 'height'])
+        dataset = train_test.merge(image_names, on='id')
+        dataset = dataset.merge(labels, on='id')
+        dataset = dataset.merge(image_boxes, on='id')
 
-        # creat empty lists
-        train_data = []
-        train_labels = []
-        train_parts = []
-        train_boxes = []
-        test_data = []
-        test_labels = []
-        test_parts = []
-        test_boxes = []
-
-        # iterating all samples in the whole dataset
-        for id_ in range(id2name.shape[0]):
-            # load each variable
-            image = os.path.join(image_path, id2name[id_, 1])
-            # Label starts with 0
-            label = int(id2name[id_, 1][:3]) - 1
-            parts = id2part[id_ * self.num_kps: id_ * self.num_kps + self.num_kps][:, 1:]
-            boxes = id2box[id_]
-
-            # training split
-            if id2train[id_, 1] == 1:
-                train_data.append(image)
-                train_labels.append(label)
-                train_parts.append(parts)
-                train_boxes.append(boxes)
-            # testing split
-            else:
-                test_data.append(image)
-                test_labels.append(label)
-                test_parts.append(parts)
-                test_boxes.append(boxes)
+        labels_to_array = dataset['label'].to_numpy()
+        labels_to_index = {label: i for i, label in enumerate(np.unique(labels_to_array))}
+        dataset['label'] = dataset['label'].apply(lambda x: labels_to_index[x])
+        # Handle string-based image ids
+        image_id_to_index = {image_id: i for i, image_id in enumerate(dataset['id'].to_numpy())}
+        image_parts['id'] = image_parts['id'].apply(lambda x: image_id_to_index[x])
+        dataset['id'] = dataset['id'].apply(lambda x: image_id_to_index[x])
 
         # return according to different splits
         if train:
-            return train_data, train_labels, train_parts, train_boxes
+            dataset_train = dataset.loc[dataset['train'] == 1]
+            image_parts_train = image_parts.loc[image_parts['id'].isin(dataset_train['id'])]
+            data = [os.path.join(image_path, name) for name in dataset_train['filename']]
+            labels = dataset_train['label'].to_numpy()
+            boxes = dataset_train[['id', 'x', 'y', 'width', 'height']].to_numpy()
+            boxes = torch.from_numpy(boxes).float()
+            parts = image_parts_train.loc[:, ["part_id", "x", "y", "visible"]].to_numpy().reshape(
+                len(dataset_train), self.num_kps, 4)
+            parts = torch.from_numpy(parts).float()
         else:
-            return test_data, test_labels, test_parts, test_boxes
+            dataset_test = dataset.loc[dataset['train'] == 0]
+            image_parts_test = image_parts.loc[image_parts['id'].isin(dataset_test['id'])]
+            data = [os.path.join(image_path, name) for name in dataset_test['filename']]
+            labels = dataset_test['label'].to_numpy()
+            boxes = dataset_test[['id', 'x', 'y', 'width', 'height']].to_numpy()
+            boxes = torch.from_numpy(boxes).float()
+
+            parts = image_parts_test.loc[:, ["part_id", "x", "y", "visible"]].to_numpy().reshape(len(dataset_test),
+                                                                                                 self.num_kps, 4)
+            parts = torch.from_numpy(parts).float()
+        return data, labels, parts, boxes
 
 
 if __name__ == '__main__':

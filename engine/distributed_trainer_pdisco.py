@@ -17,7 +17,7 @@ from utils.data_utils.class_balanced_distributed_sampler import ClassBalancedDis
 from utils.data_utils.class_balanced_sampler import ClassBalancedRandomSampler
 from utils.training_utils.ddp_utils import ddp_setup, set_seeds
 from utils.visualize_att_maps import VisualizeAttentionMaps
-from utils.training_utils.engine_utils import load_state_dict_pdisco, accuracy, AverageMeter
+from utils.training_utils.engine_utils import load_state_dict_pdisco, AverageMeter
 from utils.wandb_params import init_wandb
 from .losses import *
 
@@ -55,15 +55,7 @@ class PDiscoTrainer:
         self.num_landmarks = model.num_landmarks
         self.num_classes = model.num_classes
         # Top-k accuracy metrics for evaluation
-        self.top1 = AverageMeter()
-        self.top5 = AverageMeter()
-        # Macro average accuracy metrics
-        self.macro_avg_acc_top1 = torchmetrics.classification.MulticlassAccuracy(num_classes=self.num_classes, top_k=1,
-                                                                                 average="macro").to(self.local_rank,
-                                                                                                     non_blocking=True)
-        self.macro_avg_acc_top5 = torchmetrics.classification.MulticlassAccuracy(num_classes=self.num_classes, top_k=5,
-                                                                                 average="macro").to(self.local_rank,
-                                                                                                     non_blocking=True)
+        self._init_accuracy_metrics()
         self.model = model.to(self.local_rank)
         self.train_dataset = train_dataset
         self.test_dataset = test_dataset
@@ -81,8 +73,7 @@ class PDiscoTrainer:
         else:
             self.loss_fn_train = loss_fn[0]
             self.loss_fn_eval = loss_fn[1]
-        self.loss_fn_eval = self.loss_fn_eval.to(self.local_rank, non_blocking=True)
-        self.loss_fn_train = self.loss_fn_train.to(self.local_rank, non_blocking=True)
+
         self.save_every = save_every
         self.amap_saving_prob = amap_saving_prob
         self.epochs_run = 0
@@ -180,11 +171,14 @@ class PDiscoTrainer:
         self.l_enforced_presence_loss_type = loss_hyperparams['l_enforced_presence_loss_type']
         self.l_pixel_wise_entropy = loss_hyperparams['l_pixel_wise_entropy']
         self.conc_loss = ConcentrationLoss().to(self.local_rank, non_blocking=True)
-        self.enforced_presence_loss = EnforcedPresenceLoss(loss_type=self.l_enforced_presence_loss_type).to(self.local_rank,
-                                                                                                            non_blocking=True)
+        self.enforced_presence_loss = EnforcedPresenceLoss(loss_type=self.l_enforced_presence_loss_type).to(
+            self.local_rank,
+            non_blocking=True)
         self.total_variation_loss = TotalVariationLoss(reduction="mean").to(self.local_rank, non_blocking=True)
         self.presence_loss = PresenceLoss(beta=self.l_presence_beta,
                                           loss_type=self.l_presence_type).to(self.local_rank, non_blocking=True)
+        self.loss_fn_eval = self.loss_fn_eval.to(self.local_rank, non_blocking=True)
+        self.loss_fn_train = self.loss_fn_train.to(self.local_rank, non_blocking=True)
 
     def _init_affine_transform_params(self, eq_affine_transform_params: dict) -> None:
         # Equivariance affine transform parameters
@@ -205,6 +199,41 @@ class PDiscoTrainer:
                                 'loss_pixel_wise_entropy': AverageMeter()}
 
         self.loss_dict_val = {'loss_total_val': AverageMeter()}
+
+    def _init_accuracy_metrics(self) -> None:
+        self.acc_dict_train = {'train_acc': torchmetrics.classification.MulticlassAccuracy(
+                                num_classes=self.num_classes, top_k=1,
+                                average="micro").to(self.local_rank,
+                                                    non_blocking=True),
+                               'train_acc_top5': torchmetrics.classification.MulticlassAccuracy(
+                                   num_classes=self.num_classes, top_k=5,
+                                   average="micro").to(self.local_rank,
+                                                       non_blocking=True),
+                               'macro_avg_acc_top1_train': torchmetrics.classification.MulticlassAccuracy(
+                                   num_classes=self.num_classes, top_k=1,
+                                   average="macro").to(self.local_rank,
+                                                       non_blocking=True),
+                               'macro_avg_acc_top5_train': torchmetrics.classification.MulticlassAccuracy(
+                                   num_classes=self.num_classes, top_k=5,
+                                   average="macro").to(self.local_rank,
+                                                       non_blocking=True)}
+
+        self.acc_dict_test = {'test_acc': torchmetrics.classification.MulticlassAccuracy(
+                                num_classes=self.num_classes, top_k=1,
+                                average="micro").to(self.local_rank,
+                                                    non_blocking=True),
+                              'test_acc_top5': torchmetrics.classification.MulticlassAccuracy(
+                                   num_classes=self.num_classes, top_k=5,
+                                   average="micro").to(self.local_rank,
+                                                       non_blocking=True),
+                              'macro_avg_acc_top1_test': torchmetrics.classification.MulticlassAccuracy(
+                                  num_classes=self.num_classes, top_k=1,
+                                  average="macro").to(self.local_rank,
+                                                      non_blocking=True),
+                              'macro_avg_acc_top5_test': torchmetrics.classification.MulticlassAccuracy(
+                                  num_classes=self.num_classes, top_k=5,
+                                  average="macro").to(self.local_rank,
+                                                      non_blocking=True)}
 
     def _prepare_dataloader_ddp(self, dataset: torch.utils.data.Dataset, num_workers: int = 4,
                                 class_balanced_sampling: bool = False):
@@ -312,7 +341,7 @@ class PDiscoTrainer:
                 loss_presence = self.presence_loss(maps=maps[:, :-1, :, :]) * self.l_presence
 
                 # Orthogonality loss
-                loss_orth = orthogonality_loss(all_features, self.num_landmarks) * self.l_orth
+                loss_orth = orthogonality_loss(all_features) * self.l_orth
 
                 # Equivariance loss: calculate rotated landmarks distance
                 loss_equiv = equivariance_loss(maps, equiv_maps, source, self.num_landmarks, translate, angle, scale,
@@ -380,14 +409,12 @@ class PDiscoTrainer:
         for key in self.loss_dict_val.keys():
             self.loss_dict_val[key].reset()
 
-        accuracies = []
-        if self.mixup_fn is not None and train:
-            pass
-        else:
-            self.top1.reset()
-            self.top5.reset()
-            self.macro_avg_acc_top1.reset()
-            self.macro_avg_acc_top5.reset()
+        accuracies_dict = {}
+
+        for key in self.acc_dict_train.keys():
+            self.acc_dict_train[key].reset()
+        for key in self.acc_dict_test.keys():
+            self.acc_dict_test[key].reset()
 
         for it, mini_batch in enumerate(dataloader):
             source = mini_batch[0]
@@ -401,44 +428,43 @@ class PDiscoTrainer:
             batch_preds, losses_dict = self._run_batch(source, targets, train,
                                                        vis_att_maps=vis_att_maps, curr_iter=it)
 
-            if self.mixup_fn is not None and train:
-                pass
-            else:
-                # Calculate and accumulate metrics across all batches
-                self.macro_avg_acc_top1.update(batch_preds, targets)
-                self.macro_avg_acc_top5.update(batch_preds, targets)
-                acc1, acc5 = accuracy(batch_preds, targets, topk=(1, 5))
-                self.top1.update(acc1[0], source.size(0))
-                self.top5.update(acc5[0], source.size(0))
             if train:
                 for key in losses_dict.keys():
                     self.loss_dict_train[key].update(losses_dict[key], source.size(0))
+                if self.mixup_fn is not None:
+                    for key in self.acc_dict_train.keys():
+                        self.acc_dict_train[key].update(batch_preds, targets)
             else:
                 for key in losses_dict.keys():
                     self.loss_dict_val[key].update(losses_dict[key], source.size(0))
+                for key in self.acc_dict_test.keys():
+                    self.acc_dict_test[key].update(batch_preds, targets)
             if it % self.log_freq == 0:
                 if train:
                     print(
-                        f'''[GPU{self.global_rank}] Epoch {epoch} | Iter {it} | {step_type} Total Loss {losses_dict['loss_total_train']:.5f} | Classification Loss {losses_dict['loss_classification_train']:.5f} | Concentration Loss {losses_dict['loss_conc_train']:.5f} | Presence Loss {losses_dict['loss_presence_train']:.5f} | Orth Loss {losses_dict['loss_orth_train']:.5f} | Equiv Loss {losses_dict['loss_equiv_train']:.5f} | TV Loss {losses_dict['loss_tv']:.5f} | Enforced Presence Loss {losses_dict['loss_enforced_presence']:.5f} | Pixel-wise Entropy Loss {losses_dict['loss_pixel_wise_entropy']:.5f}''')
+                        f'[GPU{self.global_rank}] Epoch {epoch} | Iter {it} | {step_type} Total Loss {losses_dict["loss_total_train"]:.5f}'
+                        f'| Classification Loss {losses_dict["loss_classification_train"]:.5f} | Concentration Loss {losses_dict["loss_conc_train"]:.5f}'
+                        f'| Presence Loss {losses_dict["loss_presence_train"]:.5f} | Orth Loss {losses_dict["loss_orth_train"]:.5f}'
+                        f'| Equiv Loss {losses_dict["loss_equiv_train"]:.5f} | TV Loss {losses_dict["loss_tv"]:.5f}'
+                        f'| Enforced Presence Loss {losses_dict["loss_enforced_presence"]:.5f}'
+                        f'| Pixel-wise Entropy Loss {losses_dict["loss_pixel_wise_entropy"]:.5f}')
                 else:
                     print(
-                        f"[GPU{self.global_rank}] Epoch {epoch} | Iter {it} | {step_type} Total Loss {losses_dict['loss_total_val']:.5f}")
-        # Compute metrics for evaluation
-        if self.mixup_fn is not None and train:
-            pass
-        else:
-            accuracies.append(self.top1.avg.item())
-            accuracies.append(self.top5.avg.item())
-            accuracies.append(self.macro_avg_acc_top1.compute().item() * 100)
-            accuracies.append(self.macro_avg_acc_top5.compute().item() * 100)
+                        f'[GPU{self.global_rank}] Epoch {epoch} | Iter {it} | {step_type} '
+                        f'Total Loss {losses_dict["loss_total_val"]:.5f}')
         if train:
             self.scheduler.step()
             for key in self.loss_dict_train.keys():
                 losses_dict[key] = self.loss_dict_train[key].avg
+            if self.mixup_fn is not None:
+                for key in self.acc_dict_train.keys():
+                    accuracies_dict[key] = self.acc_dict_train[key].compute().item() * 100
         else:
             for key in self.loss_dict_val.keys():
                 losses_dict[key] = self.loss_dict_val[key].avg
-        return losses_dict, accuracies
+            for key in self.acc_dict_test.keys():
+                accuracies_dict[key] = self.acc_dict_test[key].compute().item() * 100
+        return losses_dict, accuracies_dict
 
     def _save_snapshot(self, epoch, save_best: bool = False):
         # capture snapshot
@@ -475,20 +501,16 @@ class PDiscoTrainer:
             epoch += 1
             self.current_epoch = epoch
             self.model.train()
-            loss_dict_train, acc_train = self._run_epoch(epoch, self.train_loader, train=True)
-            if acc_train:
-                train_acc, train_acc_top5, macro_avg_acc_top1_train, macro_avg_acc_top5_train = acc_train
-            else:
-                train_acc, train_acc_top5, macro_avg_acc_top1_train, macro_avg_acc_top5_train = None, None, None, None
-            logging_dict = {'epoch': epoch, 'train_acc': train_acc, 'train_acc_top5': train_acc_top5,
-                            'macro_avg_acc_top1_train': macro_avg_acc_top1_train,
-                            'macro_avg_acc_top5_train': macro_avg_acc_top5_train,
+            loss_dict_train, acc_dict_train = self._run_epoch(epoch, self.train_loader, train=True)
+
+            logging_dict = {'epoch': epoch,
                             'base_lr': self.optimizer.param_groups[0]['lr'],
                             'scratch_lr': self.optimizer.param_groups[-1]['lr'],
                             'modulation_lr': self.optimizer.param_groups[-2]['lr'],
                             'finer_lr': self.optimizer.param_groups[-3]['lr']}
-            logging_dict.update(loss_dict_train)
-
+            if self.local_rank == 0 and self.global_rank == 0:
+                logging_dict.update(loss_dict_train)
+                logging_dict.update(acc_dict_train)
             if self.local_rank == 0 and epoch % self.save_every == 0:
                 self._save_snapshot(epoch)
             elif self.local_rank == 0 and epoch == self.max_epochs:
@@ -496,20 +518,17 @@ class PDiscoTrainer:
             # eval run
             if self.test_loader:
                 self.model.eval()
-                loss_dict_val, acc_test = self._run_epoch(epoch, self.test_loader, train=False)
-                test_acc, test_acc_top5, macro_avg_acc_top1_test, macro_avg_acc_top5_test = acc_test
+                loss_dict_val, acc_dict_test = self._run_epoch(epoch, self.test_loader, train=False)
                 if self.local_rank == 0 and self.global_rank == 0:
+                    test_acc = acc_dict_test['test_acc']
                     self.epoch_test_accuracies.append(test_acc)
                     self.max_acc = max(self.epoch_test_accuracies)
                     self.max_acc_index = self.epoch_test_accuracies.index(self.max_acc)
                     if self.max_acc_index == len(self.epoch_test_accuracies) - 1:
                         self._save_snapshot(epoch, save_best=True)
 
-                    logging_dict.update({'test_acc': test_acc, 'test_acc_top5': test_acc_top5,
-                                         'macro_avg_acc_top1_test': macro_avg_acc_top1_test,
-                                         'macro_avg_acc_top5_test': macro_avg_acc_top5_test})
                     logging_dict.update(loss_dict_val)
-
+                    logging_dict.update(acc_dict_test)
                     for logger in self.loggers:
                         logger.log(logging_dict)
 
@@ -518,18 +537,23 @@ class PDiscoTrainer:
 
     def test_only(self):
         self.model.eval()
+        logging_dict = {}
         with torch.inference_mode():
             if self.test_loader:
-                loss_dict_val, acc_test = self._run_epoch(0, self.test_loader, train=False)
-                test_acc, test_acc_top5, macro_avg_acc_top1_test, macro_avg_acc_top5_test = acc_test
+                loss_dict_val, acc_dict_test = self._run_epoch(0, self.test_loader, train=False)
             print(
-                f"Test loss: {loss_dict_val['loss_total_val']:.5f} | Test acc: {test_acc:.5f} | Test acc top5: {test_acc_top5:.5f} | Macro avg acc top1: {macro_avg_acc_top1_test:.5f} | Macro avg acc top5: {macro_avg_acc_top5_test:.5f}")
+                f'Test loss: {loss_dict_val["loss_total_val"]:.5f} '
+                f'| Test acc: {acc_dict_test["test_acc"]:.5f} '
+                f'| Test acc top5: {acc_dict_test["test_acc_top5"]:.5f} '
+                f'| Macro avg acc top1: {acc_dict_test["macro_avg_acc_top1_test"]:.5f} '
+                f'| Macro avg acc top5: {acc_dict_test["macro_avg_acc_top5_test"]:.5f}')
 
         if self.local_rank == 0 and self.global_rank == 0:
+            logging_dict.update(loss_dict_val)
+            logging_dict.update({'epoch': 0})
+            logging_dict.update(acc_dict_test)
             for logger in self.loggers:
-                logger.log({"epoch": 0, "test_loss": loss_dict_val['loss_total_val'], "test_acc": test_acc,
-                            "test_acc_top5": test_acc_top5, "macro_avg_acc_top1_test": macro_avg_acc_top1_test,
-                            "macro_avg_acc_top5_test": macro_avg_acc_top5_test})
+                logger.log(logging_dict)
         self.finish_logging()
 
 

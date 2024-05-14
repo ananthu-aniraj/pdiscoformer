@@ -4,11 +4,10 @@ From: https://github.com/zxhuang1698/interpretability-by-parts/blob/master/src/c
 # pytorch & misc
 import torch
 import torchvision.transforms as transforms
-from data_sets import CUB200, PartImageNetDataset, Flowers102Seg
+from data_sets import FineGrainedBirdClassificationParts, PartImageNetDataset, Flowers102Seg
 from load_model import load_model_pdisco
 import argparse
 import copy
-import os
 from engine.eval_interpretability_nmi_ari_keypoint import eval_nmi_ari, eval_kpr
 from engine.eval_fg_bg import FgBgIoU
 from utils.training_utils.engine_utils import load_state_dict_pdisco
@@ -96,9 +95,9 @@ def main(args):
     if args.dataset == 'cub':
         cub_path = args.data_path
         # define dataset and loader
-        eval_data = CUB200(cub_path,
-                           train=False, transform=data_transforms, resize=args.image_size, center_crop=args.center_crop,
-                           image_sub_path=args.image_sub_path)
+        eval_data = FineGrainedBirdClassificationParts(cub_path,
+                                                       train=False, transform=data_transforms, resize=args.image_size, center_crop=args.center_crop,
+                                                       image_sub_path=args.image_sub_path)
     elif args.dataset == 'part_imagenet':
         # define dataset and loader
         eval_data = PartImageNetDataset(data_path=args.data_path, image_sub_path=args.image_sub_path,
@@ -120,12 +119,11 @@ def main(args):
         num_workers=args.num_workers, pin_memory=True, drop_last=True)
 
     num_cls = eval_data.num_classes
-    if args.dataset != 'flowers102seg':
-        num_landmarks = eval_data.num_kps
 
     # Add arguments to args
     args.eval_only = True
     args.pretrained_start_weights = True
+
     # Load the model
     net = load_model_pdisco(args, num_cls)
     snapshot_data = torch.load(args.model_path, map_location=torch.device('cpu'))
@@ -139,19 +137,19 @@ def main(args):
 
     if mode == 'keypoint':
         if args.dataset == 'cub':
-            fit_data = CUB200(cub_path,
-                              train=True, transform=data_transforms, resize=args.image_size,
-                              center_crop=args.center_crop)
+            fit_data = FineGrainedBirdClassificationParts(args.data_path,
+                                                          train=True, transform=data_transforms, resize=args.image_size,
+                                                          center_crop=args.center_crop)
             fit_loader = torch.utils.data.DataLoader(
                 fit_data, batch_size=args.batch_size, shuffle=True,
                 num_workers=args.num_workers, pin_memory=True, drop_last=True)
-            kpr = eval_kpr(net, fit_loader, eval_loader, nparts, num_landmarks=num_landmarks)
+            kpr = eval_kpr(net, fit_loader, eval_loader, nparts, num_landmarks=eval_data.num_kps, device=device)
             print('Mean keypoint regression error on the test set is %.2f%%.' % kpr)
         else:
             raise ValueError('Dataset not supported.')
 
     elif mode == 'nmi_ari':
-        nmi, ari = eval_nmi_ari(net, eval_loader, dataset=args.dataset)
+        nmi, ari = eval_nmi_ari(net, eval_loader, dataset=args.dataset, device=device)
         print(nmi)
         print(ari)
         print('NMI between predicted and ground truth parts is %.2f' % nmi)
@@ -161,7 +159,7 @@ def main(args):
     elif mode == 'fg_bg':
         if args.dataset != 'flowers102seg':
             raise ValueError('Dataset not supported.')
-        iou_calculator = FgBgIoU(net, eval_loader, device)
+        iou_calculator = FgBgIoU(net, eval_loader, device=device)
         iou_calculator.calculate_iou(args.model_path)
         m_iou = iou_calculator.metric_fg.compute().item() * 100
         m_iou_bg = iou_calculator.metric_bg.compute().item() * 100

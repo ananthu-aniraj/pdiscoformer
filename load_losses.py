@@ -29,6 +29,7 @@ def load_classification_loss(args, dataset_train, num_cls):
                                         n_sample=args.topk_n_sample)
         print(
             "Using Imbalanced Noised TopK loss, please note that label smoothing and mixup are not implemented in this case.")
+        mixup_fn = None
     else:
         # Define loss and optimizer
         if mixup_fn is not None:

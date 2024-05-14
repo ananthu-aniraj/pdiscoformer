@@ -60,14 +60,15 @@ def get_dimensions(image: Tensor):
     return h, w
 
 
-def _center_crop_boxes_kps_(img: Tensor, output_size: Optional[List[int]] = 448, parts: Optional[Tensor] = None,
-                            boxes: Optional[Tensor] = None, num_keypoints: int = 15):
+def center_crop_boxes_kps(img: Tensor, output_size: Optional[List[int]] = 448, parts: Optional[Tensor] = None,
+                          boxes: Optional[Tensor] = None, num_keypoints: int = 15):
     """
     Calculate the center crop parameters for the bounding boxes and landmarks and update them
     :param img: Image
     :param output_size: Output size of the cropped image
     :param parts: Locations of the landmarks of following format: <part_id> <x> <y> <visible>
     :param boxes: Bounding boxes of the landmarks of following format: <image_id> <x> <y> <width> <height>
+    :param num_keypoints: Number of keypoints
     :return:
     cropped_img: Center cropped image
     parts: Updated locations of the landmarks

@@ -1,7 +1,6 @@
 # Attention Block with option to return the mean of k over heads from attention
 
 import torch
-from torch import nn
 from timm.models.vision_transformer import Attention, Block
 import torch.nn.functional as F
 from typing import Tuple
@@ -40,20 +39,14 @@ class AttentionWQKVReturn(Attention):
 class BlockWQKVReturn(Block):
     """
     Modifications:
-        - Use PDiscoAttention instead of Attention
+        - Use AttentionWQKVReturn instead of Attention
         - Return the qkv tensors from the attention
     """
-
-    def _drop_path1(self, x):
-        return self.drop_path1(x) if hasattr(self, "drop_path1") else self.drop_path(x)
-
-    def _drop_path2(self, x):
-        return self.drop_path2(x) if hasattr(self, "drop_path2") else self.drop_path(x)
 
     def forward(self, x: torch.Tensor, return_qkv: bool = False) -> torch.Tensor | Tuple[torch.Tensor, torch.Tensor]:
         # Note: this is copied from timm.models.vision_transformer.Block with modifications.
         x_attn, qkv = self.attn(self.norm1(x))
-        x = x + self._drop_path1(self.ls1(x_attn))
+        x = x + self.drop_path1(self.ls1(x_attn))
         x = x + self.drop_path2(self.ls2(self.mlp(self.norm2(x))))
         if return_qkv:
             return x, qkv

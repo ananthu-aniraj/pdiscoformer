@@ -36,8 +36,8 @@ class FgBgIoU:
         :param device: Device
         :param model: Model
         """
-        self.metric_fg = BinaryJaccardIndex().to(device)
-        self.metric_bg = BinaryJaccardIndex().to(device)
+        self.metric_fg = BinaryJaccardIndex().to(device, non_blocking=True)
+        self.metric_bg = BinaryJaccardIndex().to(device, non_blocking=True)
         self.model = model
         self.device = device
         self.num_parts = model.num_landmarks
@@ -54,10 +54,10 @@ class FgBgIoU:
         self.metric_bg.reset()
         self.model.eval()
         for (img, _, mask) in tqdm(self.data_loader, desc='Testing'):
-            img = img.to(self.device)
-            mask = mask.to(self.device)
+            img = img.to(self.device, non_blocking=True)
+            mask = mask.to(self.device, non_blocking=True)
             with torch.inference_mode():
-                _, assign, output, _ = self.model(img)
+                assign = self.model(img)[1]
 
             map_argmax = torch.nn.functional.interpolate(assign, size=(mask.shape[-2], mask.shape[-1]),
                                                          mode='bilinear',

@@ -8,7 +8,7 @@ from tqdm import tqdm
 from utils.get_landmark_coordinates import landmark_coordinates
 
 
-def create_centers(data_loader, model, num_parts, num_landmarks):
+def create_centers(data_loader, model, num_parts, num_landmarks, device=torch.device("cuda")):
     """
     Generate the center coordinates as tensor for the current model.
     Parameters
@@ -21,6 +21,8 @@ def create_centers(data_loader, model, num_parts, num_landmarks):
         Number of predicted parts
     num_landmarks: int
         Number of landmarks in the dataset
+    device: torch.device
+        Device to run the evaluation on
     Returns
     ----------
     centers_tensor: torch.cuda.FloatTensor, [data_size, num_parts * 2]
@@ -47,17 +49,17 @@ def create_centers(data_loader, model, num_parts, num_landmarks):
 
     # iterating the data loader, landmarks shape: [N, num_landmarks, 4], column first
     # bbox shape: [N, 5]
-    for i, (input_raw, gt_class, landmarks_raw, bbox_raw, _) in enumerate(data_loader):
+    for i, (input_raw, gt_class, landmarks_raw, bbox_raw) in enumerate(data_loader):
         # to device
-        input_raw = input_raw.cuda()
-        landmarks_raw = landmarks_raw.cuda()
-        bbox_raw = bbox_raw.cuda()
+        input_raw = input_raw.to(device, non_blocking=True)
+        landmarks_raw = landmarks_raw.to(device, non_blocking=True)
+        bbox_raw = bbox_raw.to(device, non_blocking=True)
 
         # cut the input and transform the landmark
         inputs, landmarks_full, bbox = input_raw, landmarks_raw, bbox_raw
 
         # gather the landmark annotations, center outputs and existence masks
-        with torch.no_grad():
+        with torch.inference_mode():
             # generate assignment map
             _, assignment, logits_parts, _ = model(inputs)
             logits = logits_parts.mean(dim=-1)
@@ -70,7 +72,7 @@ def create_centers(data_loader, model, num_parts, num_landmarks):
                 assignment.cpu())
             x_centroid = loc_x * inputs.shape[-2] / assignment.shape[-2]
             y_centroid = loc_y * inputs.shape[-1] / assignment.shape[-1]
-            centers = torch.stack((y_centroid, x_centroid), dim=-1).cuda()
+            centers = torch.stack((y_centroid, x_centroid), dim=-1).to(device, non_blocking=True)
 
             # extract the landmark and existence mask, [N, num_landmarks, 2]
             landmarks = landmarks_full[:, :, -3:-1]
@@ -134,16 +136,16 @@ def distance_l2(prediction, annotation):
     return error
 
 
-def eval_nmi_ari(net, data_loader, dataset="cub"):
+def eval_nmi_ari(net, data_loader, dataset="cub", device=torch.device("cuda")):
     if dataset == "cub":
-        return eval_nmi_ari_cub(net, data_loader)
+        return eval_nmi_ari_cub(net, data_loader, device)
     elif dataset == "part_imagenet":
-        return eval_nmi_ari_part_imagenet(net, data_loader)
+        return eval_nmi_ari_part_imagenet(net, data_loader, device)
     else:
         raise ValueError("Dataset not supported.")
 
 
-def eval_nmi_ari_part_imagenet(net, data_loader):
+def eval_nmi_ari_part_imagenet(net, data_loader, device):
     """
     Get Normalized Mutual Information, Adjusted Rand Index for given method
     Parameters
@@ -152,6 +154,8 @@ def eval_nmi_ari_part_imagenet(net, data_loader):
         The trained net to evaluate
     data_loader: torch.utils.data.DataLoader
         The dataset to evaluate
+    device: torch.device
+        The device to run the evaluation on
     Returns
     ----------
     nmi: float
@@ -167,21 +171,21 @@ def eval_nmi_ari_part_imagenet(net, data_loader):
     for (input_raw, _, landmarks_raw) in tqdm(data_loader, desc="Evaluating NMI/ARI"):
         batch_size = input_raw.shape[0]
         # to device
-        input_raw = input_raw.cuda()
-        landmarks_raw = landmarks_raw.cuda()
+        input_raw = input_raw.to(device, non_blocking=True)
+        landmarks_raw = landmarks_raw.to(device, non_blocking=True)
 
         # cut the input and transform the landmark
         inputs, landmarks_full = input_raw, landmarks_raw
 
         # Used to filter out all pixels that have < 0.1 value for all GT parts
         background_landmark = torch.full(size=(batch_size, 1, landmarks_full.shape[-2], landmarks_full.shape[-1]),
-                                         fill_value=0.1).cuda()
+                                         fill_value=0.1).to(device, non_blocking=True)
         landmarks_full = torch.cat((landmarks_full, background_landmark), dim=1)
 
         # Check which part is most active per pixel
         landmarks_vec = torch.argmax(landmarks_full, dim=1)
 
-        with torch.no_grad():
+        with torch.inference_mode():
             # generate assignment map
             maps = net(inputs)[1]
             part_name_mat_w_bg = F.interpolate(maps, size=inputs.shape[-2:], mode='bilinear', align_corners=False)
@@ -198,7 +202,7 @@ def eval_nmi_ari_part_imagenet(net, data_loader):
     return nmi, ari
 
 
-def eval_nmi_ari_cub(net, data_loader):
+def eval_nmi_ari_cub(net, data_loader, device):
     """
     Get Normalized Mutual Information, Adjusted Rand Index for given method
     Parameters
@@ -207,6 +211,8 @@ def eval_nmi_ari_cub(net, data_loader):
         The trained net to evaluate
     data_loader: torch.utils.data.DataLoader
         The dataset to evaluate
+    device: torch.device
+        The device to run the evaluation on
     Returns
     ----------
     nmi: float
@@ -219,16 +225,16 @@ def eval_nmi_ari_cub(net, data_loader):
 
     # iterating the data loader, landmarks shape: [N, num_landmarks, 4], column first
     # bbox shape: [N, 5]
-    for (input_raw, gt_class, landmarks_raw, bbox_raw, _) in tqdm(data_loader, desc="Evaluating NMI/ARI"):
+    for (input_raw, gt_class, landmarks_raw, bbox_raw) in tqdm(data_loader, desc="Evaluating NMI/ARI"):
         # to device
-        input_raw = input_raw.cuda()
-        landmarks_raw = landmarks_raw.cuda()
-        bbox_raw = bbox_raw.cuda()
+        input_raw = input_raw.to(device, non_blocking=True)
+        landmarks_raw = landmarks_raw.to(device, non_blocking=True)
+        bbox_raw = bbox_raw.to(device, non_blocking=True)
 
         # cut the input and transform the landmark
         inputs, landmarks_full, bbox = input_raw, landmarks_raw, bbox_raw
 
-        with torch.no_grad():
+        with torch.inference_mode():
             # generate assignment map
             maps = net(inputs)[1]
 
@@ -248,7 +254,7 @@ def eval_nmi_ari_cub(net, data_loader):
             pred_parts_loc_w_bg = pred_parts_loc_w_bg[visible]
             all_nmi_preds_w_bg.append(pred_parts_loc_w_bg.cpu().numpy())
 
-            gt_parts_loc = torch.arange(landmarks_full.shape[1]).unsqueeze(0).repeat(landmarks_full.shape[0], 1).cuda()
+            gt_parts_loc = torch.arange(landmarks_full.shape[1]).unsqueeze(0).repeat(landmarks_full.shape[0], 1).to(device, non_blocking=True)
             gt_parts_loc = gt_parts_loc[visible]
             all_nmi_gts.append(gt_parts_loc.cpu().numpy())
 
@@ -260,7 +266,7 @@ def eval_nmi_ari_cub(net, data_loader):
     return nmi, ari
 
 
-def eval_kpr(net, fit_loader, eval_loader, nparts, num_landmarks):
+def eval_kpr(net, fit_loader, eval_loader, nparts, num_landmarks, device=torch.device("cuda")):
     """
     Evaluate keypoint regression for given method
     Parameters
@@ -275,6 +281,8 @@ def eval_kpr(net, fit_loader, eval_loader, nparts, num_landmarks):
         Number of predicted parts
     num_landmarks: int
         Number of landmarks in the dataset
+    device: torch.device
+        The device to run the evaluation on
     Returns
     ----------
     kpr: float
@@ -283,10 +291,10 @@ def eval_kpr(net, fit_loader, eval_loader, nparts, num_landmarks):
     # convert the assignment to centers for both splits
     print('Evaluating the model for the whole data split...')
     fit_centers, fit_annos, fit_masks, fit_active_centers, _, _, _, _ = \
-        create_centers(fit_loader, net, nparts, num_landmarks)
+        create_centers(fit_loader, net, nparts, num_landmarks, device)
     eval_centers, eval_annos, eval_masks, eval_active_centers, \
         gt_labels, pred_final, pred_landmarks, present_landmarks = \
-        create_centers(eval_loader, net, nparts, num_landmarks)
+        create_centers(eval_loader, net, nparts, num_landmarks, device)
 
     # fit the linear regressor with sklearn
     # normalized assignment center coordinates -> normalized landmark coordinate annotations
@@ -330,7 +338,7 @@ def eval_kpr(net, fit_loader, eval_loader, nparts, num_landmarks):
         scaler_centers.fit(fit_centers_np)
         scaler_landmarks.fit(fit_annos_np)
 
-        # stardardize the fitting split
+        # standardize the fitting split
         fit_centers_std = scaler_centers.transform(fit_centers_np)
         fit_annos_std = scaler_landmarks.transform(fit_annos_np)
 

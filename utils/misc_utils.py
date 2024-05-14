@@ -12,6 +12,12 @@ def factors(n):
                   ([i, n // i] for i in range(1, int(n ** 0.5) + 1) if n % i == 0))
 
 
+def file_line_count(filename: str) -> int:
+    """Count the number of lines in a file"""
+    with open(filename, 'rb') as f:
+        return sum(1 for _ in f)
+
+
 def compute_attention(qkv, scale=None):
     """
     Compute attention matrix (same as in the pytorch scaled dot product attention)
@@ -20,7 +26,10 @@ def compute_attention(qkv, scale=None):
     :param scale: Scale factor for the attention computation
     :return:
     """
-    query, key, value = qkv.unbind(0)
+    if isinstance(qkv, torch.Tensor):
+        query, key, value = qkv.unbind(0)
+    else:
+        query, key, value = qkv
     scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
     L, S = query.size(-2), key.size(-2)
     attn_bias = torch.zeros(L, S, dtype=query.dtype, device=query.device)

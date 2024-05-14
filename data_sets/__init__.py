@@ -1,4 +1,4 @@
-from .cub_dataset import *
+from .fg_bird_dataset import *
 from .celeba import *
 from .imagenet_with_ood_eval import *
 from .part_imagenet import *

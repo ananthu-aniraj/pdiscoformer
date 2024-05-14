@@ -64,14 +64,7 @@ def load_state_dict_pdisco(snapshot_data):
         snapshot_data (dict): dictionary containing the state dict of a snapshot
     """
     snapshot = Snapshot(**snapshot_data)
-    keys_to_change = [key for key in snapshot.model_state.keys() if "fc_norm" in key]
-    keys_to_change.extend([key for key in snapshot.model_state.keys() if "modulation.fc_class_landmarks" in key])
-
     state_dict = snapshot.model_state
-    for key in keys_to_change:
-        new_key = key.replace("fc_norm", "modulation").replace("modulation.fc_class_landmarks", "fc_class_landmarks")
-        state_dict[new_key] = state_dict.pop(key)
-
     return snapshot, state_dict
 
 

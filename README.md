@@ -26,6 +26,9 @@ Otherwise, you can also individually install the following packages:
 10. [pycocotools](https://pypi.org/project/pycocotools/)
 11. [pytopk](https://pypi.org/project/pytopk/)
 
+# Update
+The code has been updated to support the NABirds dataset. The corresponding evaluation metrics have also been added.
+
 # Datasets
 ### CUB
 The dataset can be downloaded from [here](https://www.vision.caltech.edu/datasets/cub_200_2011/). 
@@ -67,6 +70,22 @@ The final folder structure should look like this:
 ```
 ### PartImageNet Seg
 The dataset can be downloaded from [here](https://github.com/TACJu/PartImageNet). No additional pre-processing is required.
+
+### NABirds
+The dataset can be downloaded from [here](https://dl.allaboutbirds.org/nabirds). The folder structure is similar to the CUB dataset (except for the attributes).
+
+```
+nabirds
+├── bounding_boxes.txt
+├── classes.txt
+├── images
+├── image_class_labels.txt
+├── images.txt
+├── hierarchy.txt
+├── parts
+├── README
+└── train_test_split.txt
+```
 
 # Training
 The details of running the training script can be found in the [training instructions](training_instructions.md) file.

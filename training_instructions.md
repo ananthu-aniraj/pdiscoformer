@@ -80,7 +80,7 @@ torchrun \
 ```
 
 ### Dataset-specific Parameters
-- `--dataset`: The name of the dataset. For CUB, use `cub`. For PartImageNet OOD, use `part_imagenet_ood`. For Oxford Flowers, use `flowers102`. For PartImageNet Seg, use `part_imagenet`. Even more datasets are supported, for more details, please refer to the [load_dataset](load_dataset.py) file.
+- `--dataset`: The name of the dataset. For CUB/NABirds, use `cub` or `nabirds`. For PartImageNet OOD, use `part_imagenet_ood`. For Oxford Flowers, use `flowers102`. For PartImageNet Seg, use `part_imagenet`. Even more datasets are supported, for more details, please refer to the [load_dataset](load_dataset.py) file.
 - `--data_path`: The path to the dataset. The folder structure should be as mentioned in the [README](README.md) file.
 - `--image_sub_path_train`: The sub-path to the training images in the dataset. For instance, in the CUB dataset, the images are present in the `images` folder.
 - `--image_sub_path_test`: The sub-path to the test images in the dataset. 
