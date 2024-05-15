@@ -13,7 +13,7 @@ To install the required packages, run the following command:
 ```conda env create -f environment.yml```
 
 Otherwise, you can also individually install the following packages:
-1. [PyTorch](https://pytorch.org/get-started/locally/): Tested upto version 2.2.1, please raise an issue if you face any problems with more recent versions.
+1. [PyTorch](https://pytorch.org/get-started/locally/): Tested upto version 2.3, please raise an issue if you face any problems with more recent versions.
 2. [Colorcet](https://colorcet.holoviz.org/getting_started/index.html)
 3. [Matplotlib](https://matplotlib.org/stable/users/installing.html)
 3. [OpenCV](https://pypi.org/project/opencv-python-headless/)
