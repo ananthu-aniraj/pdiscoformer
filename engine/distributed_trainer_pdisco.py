@@ -95,8 +95,6 @@ class PDiscoTrainer:
         self.mixup_fn = mixup_fn
         self.epoch_test_accuracies = []
         self.current_epoch = 0
-        self.max_acc = 0.0
-        self.max_acc_index = 0
 
         # Equivariance affine transform parameters
         self._init_affine_transform_params(eq_affine_transform_params)
@@ -431,7 +429,7 @@ class PDiscoTrainer:
             if train:
                 for key in losses_dict.keys():
                     self.loss_dict_train[key].update(losses_dict[key], source.size(0))
-                if self.mixup_fn is not None:
+                if self.mixup_fn is None:
                     for key in self.acc_dict_train.keys():
                         self.acc_dict_train[key].update(batch_preds, targets)
             else:
@@ -456,7 +454,7 @@ class PDiscoTrainer:
             self.scheduler.step()
             for key in self.loss_dict_train.keys():
                 losses_dict[key] = self.loss_dict_train[key].avg
-            if self.mixup_fn is not None:
+            if self.mixup_fn is None:
                 for key in self.acc_dict_train.keys():
                     accuracies_dict[key] = self.acc_dict_train[key].compute().item() * 100
         else:
@@ -522,9 +520,9 @@ class PDiscoTrainer:
                 if self.local_rank == 0 and self.global_rank == 0:
                     test_acc = acc_dict_test['test_acc']
                     self.epoch_test_accuracies.append(test_acc)
-                    self.max_acc = max(self.epoch_test_accuracies)
-                    self.max_acc_index = self.epoch_test_accuracies.index(self.max_acc)
-                    if self.max_acc_index == len(self.epoch_test_accuracies) - 1:
+                    max_acc = max(self.epoch_test_accuracies)
+                    max_acc_index = self.epoch_test_accuracies.index(max_acc)
+                    if max_acc_index == len(self.epoch_test_accuracies) - 1:
                         self._save_snapshot(epoch, save_best=True)
 
                     logging_dict.update(loss_dict_val)
