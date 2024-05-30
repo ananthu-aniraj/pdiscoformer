@@ -1,7 +1,7 @@
 # Evaluation Instructions
 - We recommend evaluating on one GPU. The code technically runs for multiple GPUs as well, but we have not implemented the final averaging of the evaluation metrics across GPUs.
 - Additionally, we observe that it is best to use a batch size which is a multiple of the total number of examples in the test set. Here are the dataset sizes:
-  - CUB: 5994
+  - CUB: 5794
   - Oxford Flowers: 6149
   - PartImageNet OOD: 1658
   - PartImageNet Seg: 2405
