@@ -1,6 +1,6 @@
-import torch
-
-from utils.training_utils.cosine_scheduler_w_linear_warmup import LinearWarmupCosineAnnealingLR
+from timm.scheduler.cosine_lr import CosineLRScheduler
+from timm.scheduler.step_lr import StepLRScheduler
+from .linear_lr_scheduler import LinearLRScheduler
 
 
 def build_scheduler(args, optimizer):
@@ -14,25 +14,42 @@ def build_scheduler(args, optimizer):
     total_steps = args.epochs
     type_lr_schedule = args.scheduler_type
     warmup_steps = args.scheduler_warmup_epochs
-    start_factor = args.scheduler_start_factor
-    end_factor = args.scheduler_end_factor
+    decay_steps = args.scheduler_step_size
+    warmup_lr_init = args.warmup_lr
+
     restart_factor = args.scheduler_restart_factor
     gamma = args.scheduler_gamma
-    step_size = args.scheduler_step_size
-    min_lr = args.min_lr
 
+    min_lr = args.min_lr
     if type_lr_schedule == 'cosine':
-        return torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=total_steps, eta_min=min_lr)
-    elif type_lr_schedule == 'cosine_warmup_restart':
-        return torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=warmup_steps, T_mult=restart_factor,
-                                                                    eta_min=min_lr)
+        return CosineLRScheduler(
+            optimizer,
+            t_initial=total_steps,
+            cycle_decay=restart_factor,
+            lr_min=min_lr,
+            warmup_t=warmup_steps,
+            cycle_limit=args.cosine_cycle_limit,
+            warmup_lr_init=warmup_lr_init,
+            t_in_epochs=True
+        )
     elif type_lr_schedule == 'steplr':
-        return torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
+        return StepLRScheduler(
+            optimizer,
+            decay_t=decay_steps,
+            decay_rate=gamma,
+            warmup_t=warmup_steps,
+            warmup_lr_init=warmup_lr_init,
+            t_in_epochs=True
+        )
     elif type_lr_schedule == 'linearlr':
-        return torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=start_factor, end_factor=end_factor,
-                                                 total_iters=total_steps)
-    elif type_lr_schedule == 'cosine_with_warmup':
-        return LinearWarmupCosineAnnealingLR(optimizer, warmup_epochs=warmup_steps, max_epochs=total_steps,
-                                             eta_min=min_lr, warmup_start_lr=args.warmup_lr)
+        return LinearLRScheduler(
+            optimizer,
+            t_initial=total_steps,
+            lr_min_rate=0.01,
+            warmup_t=warmup_steps,
+            warmup_lr_init=warmup_lr_init,
+            t_in_epochs=True
+        )
     else:
         raise NotImplementedError
+

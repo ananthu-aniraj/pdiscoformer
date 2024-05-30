@@ -95,6 +95,7 @@ class PDiscoTrainer:
         self.mixup_fn = mixup_fn
         self.epoch_test_accuracies = []
         self.current_epoch = 0
+        self.accum_steps = 1
 
         # Equivariance affine transform parameters
         self._init_affine_transform_params(eq_affine_transform_params)
@@ -299,6 +300,7 @@ class PDiscoTrainer:
             return
         self.optimizer.load_state_dict(snapshot.optimizer_state)
         self.epochs_run = snapshot.finished_epoch
+        self.scheduler.step(snapshot.finished_epoch)
         if snapshot.epoch_test_accuracies is not None:
             self.epoch_test_accuracies = copy.deepcopy(snapshot.epoch_test_accuracies)
         print(f"Resuming training from snapshot at Epoch {self.epochs_run}")
@@ -398,6 +400,13 @@ class PDiscoTrainer:
 
         if self.use_ddp:
             dataloader.sampler.set_epoch(epoch)
+
+        last_accum_steps = len(dataloader) % self.accum_steps
+        updates_per_epoch = (len(dataloader) + self.accum_steps - 1) // self.accum_steps
+        num_updates = (epoch - 1) * updates_per_epoch
+        last_batch_idx = len(dataloader) - 1
+        last_batch_idx_to_accum = len(dataloader) - last_accum_steps
+
         vis_att_maps = True if epoch % self.save_every == 0 else False
         vis_att_maps = True if epoch == self.max_epochs else vis_att_maps
         vis_att_maps = True if epoch == 1 else vis_att_maps
@@ -432,6 +441,8 @@ class PDiscoTrainer:
                 if self.mixup_fn is None:
                     for key in self.acc_dict_train.keys():
                         self.acc_dict_train[key].update(batch_preds, targets)
+                num_updates += 1
+                self.scheduler.step_update(num_updates=num_updates)
             else:
                 for key in losses_dict.keys():
                     self.loss_dict_val[key].update(losses_dict[key], source.size(0))
@@ -451,12 +462,12 @@ class PDiscoTrainer:
                         f'[GPU{self.global_rank}] Epoch {epoch} | Iter {it} | {step_type} '
                         f'Total Loss {losses_dict["loss_total_val"]:.5f}')
         if train:
-            self.scheduler.step()
             for key in self.loss_dict_train.keys():
                 losses_dict[key] = self.loss_dict_train[key].avg
             if self.mixup_fn is None:
                 for key in self.acc_dict_train.keys():
                     accuracies_dict[key] = self.acc_dict_train[key].compute().item() * 100
+            self.scheduler.step(epoch)
         else:
             for key in self.loss_dict_val.keys():
                 losses_dict[key] = self.loss_dict_val[key].avg

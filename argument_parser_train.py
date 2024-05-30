@@ -114,18 +114,17 @@ def parse_args():
     parser.add_argument('--max_grad_norm', default=1.0, type=float)
 
     # * Scheduler params
-    parser.add_argument('--scheduler_type', default='steplr',
-                        choices=['cosine', 'linearlr', 'cosine_warmup_restart', 'steplr', 'cosine_with_warmup'],
+    parser.add_argument('--scheduler_type', default='cosine',
+                        choices=['cosine', 'linearlr', 'steplr'],
                         type=str)
     parser.add_argument('--scheduler_warmup_epochs', default=0, type=int)
     parser.add_argument('--warmup_lr', type=float, default=1e-6)
-    parser.add_argument('--scheduler_start_factor', default=0.333, type=float)
-    parser.add_argument('--scheduler_end_factor', default=1.0, type=float)
-    parser.add_argument('--scheduler_restart_factor', default=2, type=int)
-    parser.add_argument('--scheduler_gamma', default=0.5, type=float)
-    parser.add_argument('--scheduler_step_size', default=4, type=int)
+    parser.add_argument('--scheduler_restart_factor', default=1, type=int)
+    parser.add_argument('--scheduler_gamma', default=0.1, type=float)
+    parser.add_argument('--scheduler_step_size', default=10, type=int)
     parser.add_argument('--min_lr', type=float, default=1e-6, metavar='LR',
                         help='lower lr bound for cyclic schedulers that hit 0 (1e-6)')
+    parser.add_argument('--cosine_cycle_limit', default=1, type=int)
 
     # * LR params for each param group
     parser.add_argument('--lr', default=1e-6, type=float)
