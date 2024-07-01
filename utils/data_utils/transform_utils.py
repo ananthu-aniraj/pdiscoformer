@@ -9,7 +9,7 @@ from timm.data import create_transform
 
 def make_train_transforms(args):
     train_transforms: Compose = transforms.Compose([
-        transforms.Resize(size=args.image_size),
+        transforms.Resize(size=args.image_size, antialias=True),
         transforms.RandomHorizontalFlip(p=args.hflip),
         transforms.RandomVerticalFlip(p=args.vflip),
         transforms.ColorJitter(),
@@ -24,7 +24,7 @@ def make_train_transforms(args):
 
 def make_test_transforms(args):
     test_transforms: Compose = transforms.Compose([
-        transforms.Resize(size=args.image_size),
+        transforms.Resize(size=args.image_size, antialias=True),
         transforms.CenterCrop(args.image_size),
         transforms.ToTensor(),
         transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD)
