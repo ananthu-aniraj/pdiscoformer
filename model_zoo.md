@@ -150,8 +150,8 @@ Please note that these models were recently trained and may have slight deviatio
 <tr><td>PDiscoNet</td><td>4</td><td>11.5</td><td>31.93</td><td>13.32</td><td>83.56</td><td>-</td></tr><tr><td>PDiscoNet</td><td>8</td><td>11.19</td><td>37.60</td><td>19.47</td><td>84.31</td><td>-</td></tr><tr>
 <td>PDiscoNet</td><td>11</td><td>9.59</td><td>43.57</td><td>29.63</td><td>84.51</td><td>-</td></tr><tr><td>PDiscoNet + ViT-B</td><td>4</td><td>9.76</td><td>43.02</td><td>22.77</td><td>87.74</td><td>-</td></tr><tr><td>PDiscoNet + ViT-B</td><td>8</td><td>9.17</td><td>56.50</td><td>34.10</td><td>85.60</td><td>-</td></tr><tr>
 <td>PDiscoNet + ViT-B</td><td>11</td><td>9.34</td><td>68.92</td><td>54.65</td><td>83.37</td><td>-</td></tr><tr>
-<td>PDiscoFormer</td><td>4</td><td>11.22</td><td>48.24</td><td>27.73</td><td>89.29</td><td><a href="https://github.com/ananthu-aniraj/pdiscoformer/releases/download/pdiscoformer_nabirds_weights/4_parts_snapshot_best.pt">Download</a></td></tr><tr>
+<td>PDiscoFormer</td><td>4</td><td>11.22</td><td>48.24</td><td>27.73</td><td><b>89.29</b></td><td><a href="https://github.com/ananthu-aniraj/pdiscoformer/releases/download/pdiscoformer_nabirds_weights/4_parts_snapshot_best.pt">Download</a></td></tr><tr>
 <td>PDiscoFormer</td><td>8</td><td>8.84</td><td>60.39</td><td>46.74</td><td>88.72</td><td><a href="https://github.com/ananthu-aniraj/pdiscoformer/releases/download/pdiscoformer_nabirds_weights/8_parts_snapshot_best.pt">Download</a></td></tr><tr>
-<td>PDiscoFormer</td><td>11</td><td>8.36</td><td>72.04</td><td>63.35</td>
+<td>PDiscoFormer</td><td>11</td><td><b>8.36</b></td><td><b>72.04</b></td><td><b>63.35</b></td>
 <td>88.69</td>
 <td><a href="https://github.com/ananthu-aniraj/pdiscoformer/releases/download/pdiscoformer_nabirds_weights/11_parts_snapshot_best.pt">Download</a></td></tr></tbody></table>
