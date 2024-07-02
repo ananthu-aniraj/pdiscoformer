@@ -104,8 +104,9 @@ The details of running the training script can be found in the [training instruc
 # Evaluation
 The details of running the evaluation metrics for both classification and part discovery can be found in the [evaluation instructions](evaluation_instructions.md) file.
 
-# Models
-The models trained in the paper will be released soon.
+# Model Zoo
+The trained models can be found in the [model zoo](model_zoo.md) file. 
+
 
 # Issues and Questions
 Feel free to raise an issue if you face any problems with the code or have any questions about the paper.
