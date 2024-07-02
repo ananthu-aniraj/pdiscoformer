@@ -138,14 +138,7 @@ Please note that these models were recently trained and may have slight deviatio
 </table>
 
 ## NABirds
-<style>
-            table td, table th {
-                font-size: smaller;
-                border: 1px solid black;
-                line-height: 1.4;
-                padding: 10px 10px;
-            }
-        </style><table><tbody>
+<table><tbody>
 <tr><th>Method</th><th>K</th><th>Kp</th><th>NMI</th><th>ARI</th><th>Top-1 Accuracy</th><th>URL</th></tr><tr><td>Dino</td><td>4</td><td>-</td><td>26.50</td><td>11.30</td><td>-</td><td>-</td></tr><tr><td>Dino</td><td>8</td><td>-</td><td>39.45</td><td>23.20</td><td>-</td><td>-</td></tr><tr><td>Dino</td><td>11</td><td>-</td><td>39.23</td><td>23.37</td><td>-</td><td>-</td></tr><tr><td>Huang</td><td>4</td><td>14.54</td><td>31.99</td><td>19.31</td><td>85.46</td><td>-</td></tr><tr><td>Huang</td><td>8</td><td>13.47</td><td>42.06</td><td>27.32</td><td>85.17</td><td>-</td></tr><tr><td>Huang</td><td>11</td><td>12.82</td><td>44.08</td><td>29.28</td><td>85.14</td><td>-</td></tr>
 <tr><td>PDiscoNet</td><td>4</td><td>11.5</td><td>31.93</td><td>13.32</td><td>83.56</td><td>-</td></tr><tr><td>PDiscoNet</td><td>8</td><td>11.19</td><td>37.60</td><td>19.47</td><td>84.31</td><td>-</td></tr><tr>
 <td>PDiscoNet</td><td>11</td><td>9.59</td><td>43.57</td><td>29.63</td><td>84.51</td><td>-</td></tr><tr><td>PDiscoNet + ViT-B</td><td>4</td><td>9.76</td><td>43.02</td><td>22.77</td><td>87.74</td><td>-</td></tr><tr><td>PDiscoNet + ViT-B</td><td>8</td><td>9.17</td><td>56.50</td><td>34.10</td><td>85.60</td><td>-</td></tr><tr>
