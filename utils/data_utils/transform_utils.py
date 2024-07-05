@@ -66,7 +66,7 @@ def build_transform_timm(args, is_train=True):
         if args.image_size >= 384:
             t.append(
                 transforms.Resize((args.image_size, args.image_size),
-                                  interpolation=transforms.InterpolationMode.BICUBIC),
+                                  interpolation=transforms.InterpolationMode.BICUBIC, antialias=True),
             )
             print(f"Warping {args.image_size} size input images...")
         else:
@@ -75,7 +75,7 @@ def build_transform_timm(args, is_train=True):
             size = int(args.image_size / args.crop_pct)
             t.append(
                 # to maintain same ratio w.r.t. 224 images
-                transforms.Resize(size, interpolation=transforms.InterpolationMode.BICUBIC),
+                transforms.Resize(size, interpolation=transforms.InterpolationMode.BICUBIC, antialias=True),
             )
             t.append(transforms.CenterCrop(args.image_size))
 
