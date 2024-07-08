@@ -5,7 +5,7 @@ Official implementation of the paper "PDiscoFormer: Relaxing Part Discovery Cons
 [[`Arxiv`]](https://arxiv.org/abs/2407.04538)
 
 ## Introduction
-We propose a novel approach for unsupervised part discovery using self-supervised vision transformers and achieve state-of-the-art results. 
+In our work, we explore computer vision methods that explicitly detect and reason about object parts, driven by a classification task, taking a significant step towards inherently interpretable models. We introduce a novel approach and training objective for unsupervised part discovery using self-supervised vision transformers, achieving state-of-the-art results.
 
 
 
