@@ -4,6 +4,8 @@ Official implementation of the paper "PDiscoFormer: Relaxing Part Discovery Cons
 ## Introduction
 We propose a novel approach for unsupervised part discovery using self-supervised vision transformers and achieve state-of-the-art results. 
 
+[[`Arxiv`]](https://arxiv.org/abs/2407.04538)
+
 
 ![splash_pdisconetV2 (1)](https://github.com/ananthu-aniraj/pdiscoformer/assets/50333505/aa3803c0-2ce0-411e-bb04-a79113c9da07)
 
