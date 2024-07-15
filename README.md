@@ -42,6 +42,9 @@ Otherwise, you can also individually install the following packages:
 10. [pycocotools](https://pypi.org/project/pycocotools/)
 11. [pytopk](https://pypi.org/project/pytopk/)
 
+# Update
+The code has been updated to support the NABirds dataset. The corresponding evaluation metrics and pre-trained models have also been added.
+
 # Datasets
 ### CUB
 The dataset can be downloaded from [here](https://www.vision.caltech.edu/datasets/cub_200_2011/). 
