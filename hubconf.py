@@ -2,10 +2,8 @@ import torch
 import os
 import copy
 from pathlib import Path
-from timm.models import create_model
-from torchvision.models import get_model
-from models.individual_landmark_resnet import IndividualLandmarkResNet
-from models.individual_landmark_vit import IndividualLandmarkViT
+from models.individual_landmark_resnet import pdisconet_resnet_torchvision_bb
+from models.individual_landmark_vit import pdiscoformer_vit_bb, pdisconet_vit_bb
 from utils.training_utils.engine_utils import load_state_dict_pdisco
 
 dependencies = ['torch', 'torchvision', 'timm']
@@ -62,15 +60,7 @@ def pdiscoformer_vit(pretrained=True, model_dataset="cub", k=8):
     img_size = pretrained_image_size[model_dataset]
     num_cls = num_classes[model_dataset]
 
-    base_model = create_model(
-        "vit_base_patch14_reg4_dinov2.lvd142m",
-        pretrained=False,
-        img_size=img_size,
-    )
-
-    model = IndividualLandmarkViT(base_model, num_landmarks=k, num_classes=num_cls,
-                                  modulation_type="layer_norm", gumbel_softmax=True,
-                                  modulation_orth=True)
+    model = pdiscoformer_vit_bb("vit_base_patch14_reg4_dinov2.lvd142m", num_cls=num_cls, k=k, img_size=img_size)
     if pretrained:
         if k not in pretrained_k_values[model_dataset]:
             raise ValueError(f"Model not trained for k = {k} for dataset {model_dataset}")
@@ -103,14 +93,7 @@ def pdisconet_vit(pretrained=True, model_dataset="nabirds", k=8):
     img_size = pretrained_image_size[model_dataset]
     num_cls = num_classes[model_dataset]
 
-    base_model = create_model(
-        "vit_base_patch14_reg4_dinov2.lvd142m",
-        pretrained=False,
-        img_size=img_size,
-    )
-
-    model = IndividualLandmarkViT(base_model, num_landmarks=k, num_classes=num_cls,
-                                  modulation_type="original")
+    model = pdisconet_vit_bb("vit_base_patch14_reg4_dinov2.lvd142m", num_cls=num_cls, k=k, img_size=img_size)
     if pretrained:
         if k not in pretrained_k_values[model_dataset]:
             raise ValueError(f"Model not trained for k = {k} for dataset {model_dataset}")
@@ -142,10 +125,7 @@ def pdisconet_resnet101(pretrained=True, model_dataset="nabirds", k=8):
     model_url = nabirds_pdisconet_resnet_base_url
     num_cls = num_classes[model_dataset]
 
-    base_model = get_model("resnet101")
-
-    model = IndividualLandmarkResNet(base_model, num_landmarks=k, num_classes=num_cls,
-                                     modulation_type="original")
+    model = pdisconet_resnet_torchvision_bb("resnet101", num_cls=num_cls, k=k)
     if pretrained:
         if k not in pretrained_k_values[model_dataset]:
             raise ValueError(f"Model not trained for k = {k} for dataset {model_dataset}")
@@ -163,12 +143,22 @@ def pdisconet_resnet101(pretrained=True, model_dataset="nabirds", k=8):
     return model
 
 
-def _make_pdiscoformer(pretrained=True, model_type="pdiscoformer_vit", model_dataset="cub", k=8):
-    if model_type == "pdiscoformer_vit":
-        return pdiscoformer_vit(pretrained=pretrained, model_dataset=model_dataset, k=k)
-    elif model_type == "pdisconet_vit":
-        return pdisconet_vit(pretrained=pretrained, model_dataset=model_dataset, k=k)
-    elif model_type == "pdisconet_resnet101":
-        return pdisconet_resnet101(pretrained=pretrained, model_dataset=model_dataset, k=k)
+def _make_pdisco_model(pretrained=True, backbone="pdiscoformer_vit", model_dataset="cub", k=8, device="cpu"):
+    """
+    Function to load the PDiscoFormer model
+    :param pretrained: Boolean flag to load the pretrained weights
+    :param backbone: Type of model to load
+    :param model_dataset: Dataset for which the model is trained
+    :param k: Number of unsupervised landmarks the model is trained on
+    :param device: Device to load the model on
+    """
+    if backbone == "pdiscoformer_vit":
+        model = pdiscoformer_vit(pretrained=pretrained, model_dataset=model_dataset, k=k)
+    elif backbone == "pdisconet_vit":
+        model = pdisconet_vit(pretrained=pretrained, model_dataset=model_dataset, k=k)
+    elif backbone == "pdisconet_resnet101":
+        model = pdisconet_resnet101(pretrained=pretrained, model_dataset=model_dataset, k=k)
     else:
-        raise ValueError(f"Model type {model_type} not recognized")
+        raise ValueError(f"Model type {backbone} not recognized")
+    model = model.to(device)
+    return model

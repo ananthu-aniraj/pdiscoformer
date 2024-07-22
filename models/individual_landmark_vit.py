@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 from typing import Any, Union, Sequence
-
+from timm.models import create_model
 from timm.models.vision_transformer import Block, Attention
 from utils.misc_utils import compute_attention
 
@@ -293,3 +293,28 @@ class IndividualLandmarkViT(torch.nn.Module):
             return return_out, qkv
         else:
             return return_out
+
+
+def pdiscoformer_vit_bb(backbone, img_size=224, num_cls=200, k=8, **kwargs):
+    base_model = create_model(
+        backbone,
+        pretrained=False,
+        img_size=img_size,
+    )
+
+    model = IndividualLandmarkViT(base_model, num_landmarks=k, num_classes=num_cls,
+                                  modulation_type="layer_norm", gumbel_softmax=True,
+                                  modulation_orth=True)
+    return model
+
+
+def pdisconet_vit_bb(backbone, img_size=224, num_cls=200, k=8, **kwargs):
+    base_model = create_model(
+        backbone,
+        pretrained=False,
+        img_size=img_size,
+    )
+
+    model = IndividualLandmarkViT(base_model, num_landmarks=k, num_classes=num_cls,
+                                  modulation_type="original")
+    return model

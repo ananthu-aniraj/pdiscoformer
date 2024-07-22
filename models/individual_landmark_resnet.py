@@ -1,6 +1,8 @@
 # Modified from https://github.com/robertdvdk/part_detection/blob/main/nets.py
 import torch
 from torch import Tensor
+from timm.models import create_model
+from torchvision.models import get_model
 from torch.nn import Parameter
 from typing import Any
 from .layers.independent_mlp import IndependentMLPs
@@ -125,3 +127,15 @@ class IndividualLandmarkResNet(torch.nn.Module):
             return all_features_mod, maps, scores, dist
         else:
             return all_features, maps, scores, dist
+
+
+def pdisconet_resnet_torchvision_bb(backbone, num_cls=200, k=8, **kwargs):
+    base_model = get_model(backbone)
+    return IndividualLandmarkResNet(base_model, num_landmarks=k, num_classes=num_cls,
+                                    modulation_type="original")
+
+
+def pdisconet_resnet_timm_bb(backbone, num_cls=200, k=8, output_stride=32, **kwargs):
+    base_model = create_model(backbone, pretrained=True, output_stride=output_stride)
+    return IndividualLandmarkResNet(base_model, num_landmarks=k, num_classes=num_cls,
+                                    modulation_type="original")
