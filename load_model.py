@@ -1,8 +1,16 @@
+import copy
+import os
+from pathlib import Path
+
+import torch
 from timm.models import create_model
 from torchvision.models import get_model
+
+from models import pdiscoformer_vit_bb, pdisconet_vit_bb, pdisconet_resnet_torchvision_bb
 from models.individual_landmark_resnet import IndividualLandmarkResNet
 from models.individual_landmark_convnext import IndividualLandmarkConvNext
 from models.individual_landmark_vit import IndividualLandmarkViT
+from utils import load_state_dict_pdisco
 
 
 def load_model_arch(args, num_cls):
@@ -135,4 +143,84 @@ def load_model_pdisco(args, num_cls):
     base_model = load_model_arch(args, num_cls)
     model = init_pdisco_model(base_model, args, num_cls)
 
+    return model
+
+
+def pdiscoformer_vit(pretrained=True, model_dataset="cub", k=8, model_url="", img_size=224, num_cls=200):
+    """
+    Function to load the PDiscoFormer model with ViT backbone
+    :param pretrained: Boolean flag to load the pretrained weights
+    :param model_dataset: Dataset for which the model is trained
+    :param k: Number of unsupervised landmarks the model is trained on
+    :param model_url: URL to load the model weights from
+    :param img_size: Image size
+    :param num_cls: Number of classes in the dataset
+    :return: PDiscoFormer model with ViT backbone
+    """
+    model = pdiscoformer_vit_bb("vit_base_patch14_reg4_dinov2.lvd142m", num_cls=num_cls, k=k, img_size=img_size)
+    if pretrained:
+        hub_dir = torch.hub.get_dir()
+        model_dir = os.path.join(hub_dir, "pdiscoformer_checkpoints", f"pdiscoformer_{model_dataset}")
+
+        Path(model_dir).mkdir(parents=True, exist_ok=True)
+        url_path = model_url + str(k) + "_parts_snapshot_best.pt"
+        snapshot_data = torch.hub.load_state_dict_from_url(url_path, model_dir=model_dir, map_location='cpu')
+        if 'model_state' in snapshot_data:
+            _, state_dict = load_state_dict_pdisco(snapshot_data)
+        else:
+            state_dict = copy.deepcopy(snapshot_data)
+        model.load_state_dict(state_dict, strict=True)
+    return model
+
+
+def pdisconet_vit(pretrained=True, model_dataset="nabirds", k=8, model_url="", img_size=224, num_cls=555):
+    """
+    Function to load the PDiscoNet model with ViT backbone
+    :param pretrained: Boolean flag to load the pretrained weights
+    :param model_dataset: Dataset for which the model is trained
+    :param k: Number of unsupervised landmarks the model is trained on
+    :param model_url: URL to load the model weights from
+    :param img_size: Image size
+    :param num_cls: Number of classes in the dataset
+    :return: PDiscoNet model with ViT backbone
+    """
+    model = pdisconet_vit_bb("vit_base_patch14_reg4_dinov2.lvd142m", num_cls=num_cls, k=k, img_size=img_size)
+    if pretrained:
+        hub_dir = torch.hub.get_dir()
+        model_dir = os.path.join(hub_dir, "pdiscoformer_checkpoints", f"pdisconet_{model_dataset}")
+
+        Path(model_dir).mkdir(parents=True, exist_ok=True)
+        url_path = model_url + str(k) + "_parts_snapshot_best.pt"
+        snapshot_data = torch.hub.load_state_dict_from_url(url_path, model_dir=model_dir, map_location='cpu')
+        if 'model_state' in snapshot_data:
+            _, state_dict = load_state_dict_pdisco(snapshot_data)
+        else:
+            state_dict = copy.deepcopy(snapshot_data)
+        model.load_state_dict(state_dict, strict=True)
+    return model
+
+
+def pdisconet_resnet101(pretrained=True, model_dataset="nabirds", k=8, model_url="", num_cls=555):
+    """
+    Function to load the PDiscoNet model with ResNet-101 backbone
+    :param pretrained: Boolean flag to load the pretrained weights
+    :param model_dataset: Dataset for which the model is trained
+    :param k: Number of unsupervised landmarks the model is trained on
+    :param model_url: URL to load the model weights from
+    :param num_cls: Number of classes in the dataset
+    :return: PDiscoNet model with ResNet-101 backbone
+    """
+    model = pdisconet_resnet_torchvision_bb("resnet101", num_cls=num_cls, k=k)
+    if pretrained:
+        hub_dir = torch.hub.get_dir()
+        model_dir = os.path.join(hub_dir, "pdiscoformer_checkpoints", f"pdisconet_{model_dataset}")
+
+        Path(model_dir).mkdir(parents=True, exist_ok=True)
+        url_path = model_url + str(k) + "_parts_snapshot_best.pt"
+        snapshot_data = torch.hub.load_state_dict_from_url(url_path, model_dir=model_dir, map_location='cpu')
+        if 'model_state' in snapshot_data:
+            _, state_dict = load_state_dict_pdisco(snapshot_data)
+        else:
+            state_dict = copy.deepcopy(snapshot_data)
+        model.load_state_dict(state_dict, strict=True)
     return model
