@@ -163,3 +163,15 @@ def pdisconet_resnet101(pretrained=True, model_dataset="nabirds", k=8):
             state_dict = copy.deepcopy(snapshot_data)
         model.load_state_dict(state_dict, strict=True)
     return model
+
+
+def _make_pdiscoformer(pretrained=True, model_type="pdiscoformer_vit", backbone="vit_base_patch14_reg4_dinov2.lvd142m",
+                       model_dataset="cub", k=8):
+    if model_type == "pdiscoformer_vit":
+        return pdiscoformer_vit(pretrained=pretrained, backbone=backbone, model_dataset=model_dataset, k=k)
+    elif model_type == "pdisconet_vit":
+        return pdisconet_vit(pretrained=pretrained, backbone=backbone, model_dataset=model_dataset, k=k)
+    elif model_type == "pdisconet_resnet101":
+        return pdisconet_resnet101(pretrained=pretrained, model_dataset=model_dataset, k=k)
+    else:
+        raise ValueError(f"Model type {model_type} not recognized")
