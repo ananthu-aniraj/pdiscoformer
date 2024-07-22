@@ -9,7 +9,7 @@ We provide the pre-trained models for the following datasets:
 
 The models can be downloaded from the links provided below. They can also be loaded using torch hub. For example, to load the model for CUB-200-2011 with 8 parts, use the following code snippet:
 
-```model = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_16', pretrained=True)```
+```model = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_8', pretrained=True)```
 
 The full list of model keys are provided using the following code snippet:
 
