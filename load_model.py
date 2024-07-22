@@ -1,4 +1,3 @@
-import torch
 from timm.models import create_model
 from torchvision.models import get_model
 from models.individual_landmark_resnet import IndividualLandmarkResNet
