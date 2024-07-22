@@ -24,6 +24,28 @@ pretrained_k_values = {
     "part_imagenet_seg": [8, 16, 25, 41, 50],
     "nabirds": [4, 8, 11]
 }
+pretrained_image_size = {
+    "cub": 518,
+    "flowers": 224,
+    "part_imagenet_ood": 224,
+    "part_imagenet_seg": 224,
+    "nabirds": 518
+}
+num_classes = {
+    "cub": 200,
+    "flowers": 102,
+    "part_imagenet_ood": 109,
+    "part_imagenet_seg": 158,
+    "nabirds": 555
+}
+model_dataset_urls = {
+    "cub": cub_base_url,
+    "flowers": flowers_base_url,
+    "part_imagenet_ood": part_imagenet_ood_base_url,
+    "part_imagenet_seg": part_imagenet_seg_base_url,
+    "nabirds": nabirds_base_url
+}
+supported_datasets = ["cub", "flowers", "part_imagenet_ood", "part_imagenet_seg", "nabirds"]
 
 
 def pdiscoformer_vit(pretrained=True, backbone="vit_base_patch14_reg4_dinov2.lvd142m", model_dataset="cub", k=8):
@@ -35,28 +57,11 @@ def pdiscoformer_vit(pretrained=True, backbone="vit_base_patch14_reg4_dinov2.lvd
     :param k: Number of unsupervised landmarks the model is trained on
     :return: PDiscoFormer model with ViT backbone
     """
-    if model_dataset == "cub":
-        model_url = cub_base_url
-        img_size = 518
-        num_cls = 200
-    elif model_dataset == "flowers":
-        model_url = flowers_base_url
-        img_size = 224
-        num_cls = 102
-    elif model_dataset == "part_imagenet_ood":
-        model_url = part_imagenet_ood_base_url
-        img_size = 224
-        num_cls = 109
-    elif model_dataset == "part_imagenet_seg":
-        model_url = part_imagenet_seg_base_url
-        img_size = 224
-        num_cls = 158
-    elif model_dataset == "nabirds":
-        model_url = nabirds_base_url
-        img_size = 518
-        num_cls = 555
-    else:
+    if model_dataset not in supported_datasets:
         raise ValueError(f"Model dataset {model_dataset} not recognized")
+    model_url = model_dataset_urls[model_dataset]
+    img_size = pretrained_image_size[model_dataset]
+    num_cls = num_classes[model_dataset]
 
     base_model = create_model(
         backbone,
@@ -93,12 +98,12 @@ def pdisconet_vit(pretrained=True, backbone="vit_base_patch14_reg4_dinov2.lvd142
     :param k: Number of unsupervised landmarks the model is trained on
     :return: PDiscoNet model with ViT backbone
     """
-    if model_dataset == "nabirds":
-        model_url = nabirds_pdisconet_vit_base_url
-        img_size = 518
-        num_cls = 555
-    else:
+    if "nabirds" not in model_dataset:
         raise ValueError(f"Model dataset {model_dataset} not recognized")
+
+    model_url = nabirds_pdisconet_vit_base_url
+    img_size = pretrained_image_size[model_dataset]
+    num_cls = num_classes[model_dataset]
 
     base_model = create_model(
         backbone,
@@ -133,11 +138,11 @@ def pdisconet_resnet101(pretrained=True, model_dataset="nabirds", k=8):
     :param k: Number of unsupervised landmarks the model is trained on
     :return: PDiscoNet model with ResNet-101 backbone
     """
-    if model_dataset == "nabirds":
-        model_url = nabirds_pdisconet_resnet_base_url
-        num_cls = 555
-    else:
+    if "nabirds" not in model_dataset:
         raise ValueError(f"Model dataset {model_dataset} not recognized")
+
+    model_url = nabirds_pdisconet_resnet_base_url
+    num_cls = num_classes[model_dataset]
 
     base_model = get_model("resnet101")
 
