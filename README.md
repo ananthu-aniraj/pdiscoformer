@@ -22,7 +22,9 @@ Computer vision methods that explicitly detect object parts and reason on them a
 # Model Architecture
 ![image](https://github.com/ananthu-aniraj/pdiscoformer/assets/50333505/73c30fb1-2f2c-408a-81dd-4447f9091f86)
 
-
+# Updates
+1. The code has been updated to support the NABirds dataset. The corresponding evaluation metrics and pre-trained models have also been added.
+2. The models are available via torch hub. The details can be found in the [model zoo](model_zoo.md) file.
 
 # Setup
 To install the required packages, run the following command:
@@ -42,8 +44,6 @@ Otherwise, you can also individually install the following packages:
 10. [pycocotools](https://pypi.org/project/pycocotools/)
 11. [pytopk](https://pypi.org/project/pytopk/)
 
-# Update
-The code has been updated to support the NABirds dataset. The corresponding evaluation metrics and pre-trained models have also been added.
 
 # Datasets
 ### CUB

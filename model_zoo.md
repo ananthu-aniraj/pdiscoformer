@@ -7,6 +7,14 @@ We provide the pre-trained models for the following datasets:
 - PartImageNet Seg
 - NABirds
 
+The models can be downloaded from the links provided below. They can also be loaded using torch hub. For example, to load the model for CUB-200-2011 with 8 parts, use the following code snippet:
+
+```model = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_16', pretrained=True)```
+
+The full list of model keys are provided using the following code snippet:
+
+```torch.hub.list("ananthu-aniraj/pdiscoformer:main")```
+
 Please note that these models were recently trained and may have slight deviations in performance compared to the models reported in the paper.
 
 ## CUB-200-2011
