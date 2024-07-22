@@ -46,7 +46,7 @@ def pdiscoformer_vit(pretrained=True, backbone="vit_base_patch14_reg4_dinov2.lvd
     elif model_dataset == "part_imagenet_ood":
         model_url = part_imagenet_ood_base_url
         img_size = 224
-        num_cls = 158
+        num_cls = 109
     elif model_dataset == "part_imagenet_seg":
         model_url = part_imagenet_seg_base_url
         img_size = 224
