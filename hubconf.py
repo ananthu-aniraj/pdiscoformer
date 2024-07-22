@@ -48,11 +48,10 @@ model_dataset_urls = {
 supported_datasets = ["cub", "flowers", "part_imagenet_ood", "part_imagenet_seg", "nabirds"]
 
 
-def pdiscoformer_vit(pretrained=True, backbone="vit_base_patch14_reg4_dinov2.lvd142m", model_dataset="cub", k=8):
+def pdiscoformer_vit(pretrained=True, model_dataset="cub", k=8):
     """
     Function to load the PDiscoFormer model with ViT backbone
     :param pretrained: Boolean flag to load the pretrained weights
-    :param backbone: Backbone architecture
     :param model_dataset: Dataset for which the model is trained
     :param k: Number of unsupervised landmarks the model is trained on
     :return: PDiscoFormer model with ViT backbone
@@ -64,7 +63,7 @@ def pdiscoformer_vit(pretrained=True, backbone="vit_base_patch14_reg4_dinov2.lvd
     num_cls = num_classes[model_dataset]
 
     base_model = create_model(
-        backbone,
+        "vit_base_patch14_reg4_dinov2.lvd142m",
         pretrained=False,
         img_size=img_size,
     )
@@ -89,11 +88,10 @@ def pdiscoformer_vit(pretrained=True, backbone="vit_base_patch14_reg4_dinov2.lvd
     return model
 
 
-def pdisconet_vit(pretrained=True, backbone="vit_base_patch14_reg4_dinov2.lvd142m", model_dataset="nabirds", k=8):
+def pdisconet_vit(pretrained=True, model_dataset="nabirds", k=8):
     """
     Function to load the PDiscoNet model with ViT backbone
     :param pretrained: Boolean flag to load the pretrained weights
-    :param backbone: Backbone architecture
     :param model_dataset: Dataset for which the model is trained
     :param k: Number of unsupervised landmarks the model is trained on
     :return: PDiscoNet model with ViT backbone
@@ -106,7 +104,7 @@ def pdisconet_vit(pretrained=True, backbone="vit_base_patch14_reg4_dinov2.lvd142
     num_cls = num_classes[model_dataset]
 
     base_model = create_model(
-        backbone,
+        "vit_base_patch14_reg4_dinov2.lvd142m",
         pretrained=False,
         img_size=img_size,
     )
@@ -165,12 +163,11 @@ def pdisconet_resnet101(pretrained=True, model_dataset="nabirds", k=8):
     return model
 
 
-def _make_pdiscoformer(pretrained=True, model_type="pdiscoformer_vit", backbone="vit_base_patch14_reg4_dinov2.lvd142m",
-                       model_dataset="cub", k=8):
+def _make_pdiscoformer(pretrained=True, model_type="pdiscoformer_vit", model_dataset="cub", k=8):
     if model_type == "pdiscoformer_vit":
-        return pdiscoformer_vit(pretrained=pretrained, backbone=backbone, model_dataset=model_dataset, k=k)
+        return pdiscoformer_vit(pretrained=pretrained, model_dataset=model_dataset, k=k)
     elif model_type == "pdisconet_vit":
-        return pdisconet_vit(pretrained=pretrained, backbone=backbone, model_dataset=model_dataset, k=k)
+        return pdisconet_vit(pretrained=pretrained, model_dataset=model_dataset, k=k)
     elif model_type == "pdisconet_resnet101":
         return pdisconet_resnet101(pretrained=pretrained, model_dataset=model_dataset, k=k)
     else:
