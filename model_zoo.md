@@ -7,14 +7,36 @@ We provide the pre-trained models for the following datasets:
 - PartImageNet Seg
 - NABirds
 
-The models can be downloaded from the links provided below. They can also be loaded using torch hub. For example, to load the model for CUB-200-2011 with 8 parts, use the following code snippet:
+The models can be downloaded from the links provided below. They can also be loaded using torch hub using the code snippet provided below.
+## How to Get Started with the Model with Torch Hub
 
-```model = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_8', pretrained=True)```
+```python
+import torch
+
+# CUB Models
+pdiscoformer_cub_k_4 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_4', pretrained=True)
+pdiscoformer_cub_k_8 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_8', pretrained=True)
+pdiscoformer_cub_k_16 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_16', pretrained=True)
+
+# PartImageNet OOD Models
+pdiscoformer_partimagenet_ood_k_8 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_8', pretrained=True)
+pdiscoformer_partimagenet_ood_k_25 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_25', pretrained=True)
+pdiscoformer_partimagenet_ood_k_50 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_50', pretrained=True)
+
+
+# Oxford Flowers Models
+pdiscoformer_flowers_k_2 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_2', pretrained=True)
+pdiscoformer_flowers_k_4 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_4', pretrained=True)
+pdiscoformer_flowers_k_8 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_8', pretrained=True)
+```
 
 The full list of model keys are provided using the following code snippet:
 
-```torch.hub.list("ananthu-aniraj/pdiscoformer:main")```
+```python 
+torch.hub.list("ananthu-aniraj/pdiscoformer:main")
+```
 
+## Pre-trained Models
 Please note that these models were recently trained and may have slight deviations in performance compared to the models reported in the paper.
 
 ## CUB-200-2011
