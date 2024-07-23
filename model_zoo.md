@@ -33,6 +33,7 @@ pdiscoformer_flowers_k_8 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'p
 The full list of model keys are provided using the following code snippet:
 
 ```python 
+import torch
 torch.hub.list("ananthu-aniraj/pdiscoformer:main")
 ```
 
