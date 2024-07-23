@@ -36,7 +36,7 @@ The full list of model keys are provided using the following code snippet:
 torch.hub.list("ananthu-aniraj/pdiscoformer:main")
 ```
 
-## Pre-trained Models
+# Pre-trained Models
 Please note that these models were recently trained and may have slight deviations in performance compared to the models reported in the paper.
 
 ## CUB-200-2011
