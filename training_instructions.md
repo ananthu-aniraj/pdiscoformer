@@ -11,7 +11,7 @@ The command line parameters in the training script related to Weights and Biases
 - `--wandb_project`: Name of the project in Weights and Biases
 - `--group`: Name of the experiment group within the project 
 - `--job_type`: Name of the type of job within the experiment group
-- `--wandb_entity`: Name of the entity in Weights and Biases. This is usually the username or the team name in Weights and Biases.
+- `--wandb_entity`: Name of the entity in Weights and Biases. This is usually the username or the team name in Weights and Biases. Please do not leave this empty if you are using Weights and Biases.
 - `--wandb_mode`: Mode of logging in Weights and Biases. Use "offline" if the machine does not have internet access and "online" if it does. In case of "offline" mode, the logs can be uploaded to Weights and Biases later using the [wandb sync](https://docs.wandb.ai/ref/cli/wandb-sync) command.
 - `--wandb_resume_id`: Resume a previous run in Weights and Biases. This is useful when you want to continue training from a previous run. Provide the run ID of the previous run to resume training. Use this in combination with the `--resume_training` flag to resume training from a previous checkpoint.
 - `--log_interval`: The interval at which the logs are printed plus the gradients are logged to Weights and Biases. The default value is 10. Feel free to change this value as required.
@@ -24,6 +24,10 @@ In case you want to modify the batch size, please adjust the learning rate accor
 We use a base batch size of 16 for a starting learning rate of 1e-6 (backbone).
 So, if you want to use a batch size of 32, you should use a learning rate of 1e-6 * sqrt(32/16) = 1e-6 * sqrt(2) = 1.414e-6. 
 The scaling is not implemented in the training script, so you will have to manually adjust the learning rate. 
+
+### Recommended Batch Sizes and Learning Rates
+- For models trained on CUB/NABirds, we recommend using a batch size of 32 (or higher).
+- For models trained on PartImageNet OOD, PartImageNet Seg, and Flowers102 we recommend using a batch size of 128 (or higher). For lower batch sizes, you may need to turn on the weight decay to stabilize the training (recommended value is 0.05).
 
 
 ## Training Command

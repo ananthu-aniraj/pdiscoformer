@@ -1,5 +1,5 @@
 # PDiscoFormer: Relaxing Part Discovery Constraints with Vision Transformers 
-Official implementation of the paper "PDiscoFormer: Relaxing Part Discovery Constraints with Vision Transformers", accepted at ECCV 2024. 
+Official implementation of the paper "PDiscoFormer: Relaxing Part Discovery Constraints with Vision Transformers", accepted as an Oral presentation at ECCV 2024. 
 
 
 [[`Arxiv`]](https://arxiv.org/abs/2407.04538)
@@ -25,6 +25,7 @@ Computer vision methods that explicitly detect object parts and reason on them a
 # Updates
 1. The code has been updated to support the NABirds dataset. The corresponding evaluation metrics and pre-trained models have also been added.
 2. The models are available via torch hub. The details can be found in the [model zoo](model_zoo.md) file.
+3. PDiscoformer has been accepted as an Oral presentation at ECCV 2024 :tada:
 
 # Setup
 To install the required packages, run the following command:
