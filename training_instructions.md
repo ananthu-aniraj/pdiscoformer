@@ -25,7 +25,7 @@ We use a base batch size of 16 for a starting learning rate of 1e-6 (backbone).
 So, if you want to use a batch size of 32, you should use a learning rate of 1e-6 * sqrt(32/16) = 1e-6 * sqrt(2) = 1.414e-6. 
 The scaling is not implemented in the training script, so you will have to manually adjust the learning rate. 
 
-### Recommended Batch Sizes and Learning Rates
+### Recommended Batch Sizes 
 - For models trained on CUB/NABirds, we recommend using a batch size of 32 (or higher).
 - For models trained on PartImageNet OOD, PartImageNet Seg, and Flowers102 we recommend using a batch size of 128 (or higher). For lower batch sizes, you may need to turn on the weight decay to stabilize the training (recommended value is 0.05).
 
