@@ -4,18 +4,6 @@ This document contains the instructions to train the models for the experiments 
 
 The code has been designed to work with both single and multi-GPU training (including multi-node training) using PyTorch's Distributed Data Parallel (DDP) and the `torchrun` utility from [torchelastic](https://pytorch.org/docs/stable/elastic/run.html). It is also designed to auto-detect slurm environments and set the appropriate environment variables for multi-gpu training in DDP.
 
-## Experiment Tracking
-It is recommended to use [Weights and Biases](https://wandb.ai/site) for tracking the experiments. The `--wandb` flag can be used to enable this feature. Feel free to remove the `--wandb` flag if you don`t want to use it.
-The command line parameters in the training script related to Weights and Biases are as follows:
-- `--wandb`: Enable Weights and Biases logging
-- `--wandb_project`: Name of the project in Weights and Biases
-- `--group`: Name of the experiment group within the project 
-- `--job_type`: Name of the type of job within the experiment group
-- `--wandb_entity`: Name of the entity in Weights and Biases. This is usually the username or the team name in Weights and Biases. Please do not leave this empty if you are using Weights and Biases.
-- `--wandb_mode`: Mode of logging in Weights and Biases. Use "offline" if the machine does not have internet access and "online" if it does. In case of "offline" mode, the logs can be uploaded to Weights and Biases later using the [wandb sync](https://docs.wandb.ai/ref/cli/wandb-sync) command.
-- `--wandb_resume_id`: Resume a previous run in Weights and Biases. This is useful when you want to continue training from a previous run. Provide the run ID of the previous run to resume training. Use this in combination with the `--resume_training` flag to resume training from a previous checkpoint.
-- `--log_interval`: The interval at which the logs are printed plus the gradients are logged to Weights and Biases. The default value is 10. Feel free to change this value as required.
-
 ## Batch Size and Learning Rate
 The `--batch_size` and `--lr` parameters can be used to set the batch size and learning rate for training.
 The batch size is per GPU, so the total batch size will be `batch_size * num_gpus`.
@@ -29,6 +17,17 @@ The scaling is not implemented in the training script, so you will have to manua
 - For models trained on CUB/NABirds, we recommend using a batch size of 32 (or higher).
 - For models trained on PartImageNet OOD, PartImageNet Seg, and Flowers102 we recommend using a batch size of 128 (or higher). For lower batch sizes, you may need to turn on the weight decay to stabilize the training (recommended value is 0.05).
 
+## Experiment Tracking
+It is recommended to use [Weights and Biases](https://wandb.ai/site) for tracking the experiments. The `--wandb` flag can be used to enable this feature. Feel free to remove the `--wandb` flag if you don`t want to use it.
+The command line parameters in the training script related to Weights and Biases are as follows:
+- `--wandb`: Enable Weights and Biases logging
+- `--wandb_project`: Name of the project in Weights and Biases
+- `--group`: Name of the experiment group within the project 
+- `--job_type`: Name of the type of job within the experiment group
+- `--wandb_entity`: Name of the entity in Weights and Biases. This is usually the username or the team name in Weights and Biases. Please do not leave this empty if you are using Weights and Biases.
+- `--wandb_mode`: Mode of logging in Weights and Biases. Use "offline" if the machine does not have internet access and "online" if it does. In case of "offline" mode, the logs can be uploaded to Weights and Biases later using the [wandb sync](https://docs.wandb.ai/ref/cli/wandb-sync) command.
+- `--wandb_resume_id`: Resume a previous run in Weights and Biases. This is useful when you want to continue training from a previous run. Provide the run ID of the previous run to resume training. Use this in combination with the `--resume_training` flag to resume training from a previous checkpoint.
+- `--log_interval`: The interval at which the logs are printed plus the gradients are logged to Weights and Biases. The default value is 10. Feel free to change this value as required.
 
 ## Training Command
 The main training command for the experiments in the paper are provided below. Please read the [Dataset-specific Parameters](#dataset-specific-parameters) and [Model-specific Parameters](#model-specific-parameters) sections to adjust the parameters as required for your experiments.
@@ -91,17 +90,103 @@ torchrun \
 - `--train_split`: The split to use for training. Only applicable for CUB if you wish to train on a subset of the dataset. We always use the full dataset for training in the paper, so the default value is 1.
 - `--eval_mode`: The mode for evaluation. Use `test` for evaluation on the test set and `val` for evaluation on the validation set. The default value is `test`. All the experiments in the paper are evaluated on the test set.
 - `--augmentations_to_use`: The augmentations to use for training. The augmentations are defined in the [transform_utils](utils/data_utils/transform_utils.py) file. The default value is `cub_original` which uses standard augmentations from fine-grained classification literature. We also support a more sophisticated auto-augmentation policy, which can be used by setting the value to `timm`. This uses the auto-augment policy used by the [ConvNeXt paper](https://arxiv.org/abs/2201.03545). For all the experiments in our paper, we use the `cub_original` augmentations.
-- `--image_size`: The size of the input image. This value is set to 518 (default value for DinoV2 timm models) on CUB for the ViT models. For the ResNet models on CUB, the default value is 448 (same as in related works). For the other datasets, the image size is set to a constant value of 224 for both ViT and ResNet models.
+- `--image_size`: The size of the input image. This value is set to 518 (default value for DinoV2 timm models) on CUB and NABirds for the ViT models. For the ResNet models on CUB and NABirds, the default value is 448 (same as in related works). For the other datasets, the image size is set to a constant value of 224 for both ViT and ResNet models.
 - `--anno_path_train`: The path to the training annotation file for the PartImageNet OOD/ PartImageNet Seg datasets. In case of PartImageNet OOD, the annotation file is generated using the pre-processing script mentioned in the [README](README.md) file. Not applicable for other datasets.
 - `--anno_path_test`: The path to the test annotation file for the PartImageNet OOD/ PartImageNet Seg datasets. In case of PartImageNet OOD, this is also generated using the pre-processing script mentioned in the [README](README.md) file. Not applicable for other datasets.
 - `--metadata_path`: The path to the metadata file for the [PlantNet300K](https://zenodo.org/records/5645731) dataset. Not applicable for other datasets. Due to an absence of part annotations, we do not use the dataset in the paper. However, the code supports the dataset for future use.
 - `--species_id_to_name_file`: The path to the file containing the mapping of species IDs to species names for the [PlantNet300K](https://zenodo.org/records/5645731) dataset. Not applicable for other datasets. 
 - `--turn_on_mixup_or_cutmix`: Turn on mixup or cutmix for training. We do not use this in the paper for any of the experiments, so the default value is `False`.
 
+#### Example Commands
+- CUB dataset:
+```
+torchrun \
+--nnodes=<number of machines> \
+--nproc_per_node=<gpus per node> \
+<base path to the code>/train_net.py \
+--data_path <base path to dataset>/cub200/CUB_200_2011 \
+--dataset cub \
+--image_sub_path_train images \
+--image_sub_path_test images \
+--train_split 1 \
+--eval_mode test \
+--image_size 518 \
+--augmentations_to_use cub_original \
+< model specific parameters >
+```
+
+- PartImageNet OOD dataset:
+```
+torchrun \
+--nnodes=<number of machines> \
+--nproc_per_node=<gpus per node> \
+<base path to the code>/train_net.py \
+--data_path <base path to dataset>/PartImageNet_OOD/partimagenet \
+--anno_path_train <base path to dataset>/PartImageNet_OOD/partimagenet/train_train.json \
+--anno_path_test <base path to dataset>/PartImageNet_OOD/partimagenet/train_test.json \
+--dataset part_imagenet_ood \
+--image_sub_path_train train \
+--image_sub_path_test train \
+--train_split 1 \
+--eval_mode test \
+--image_size 224 \
+--augmentations_to_use cub_original \
+< model specific parameters >
+```
+- Oxford Flowers dataset:
+```
+torchrun \
+--nnodes=<number of machines> \
+--nproc_per_node=<gpus per node> \
+<base path to the code>/train_net.py \
+--data_path <base path to dataset>/flowers102 \
+--dataset flowers102 \
+--train_split 1 \
+--eval_mode test \
+--image_size 224 \
+--augmentations_to_use cub_original \
+< model specific parameters >
+```
+
+- PartImageNetSeg dataset:
+```
+torchrun \
+--nnodes=<number of machines> \
+--nproc_per_node=<gpus per node> \
+<base path to the code>/train_net.py \
+--data_path <base path to dataset>/PartImageNet/images \
+--anno_path_train <base path to dataset>/PartImageNet/annotations/train/train.json \
+--anno_path_test <base path to dataset>/PartImageNet/annotations/test/test.json \
+--dataset part_imagenet \
+--image_sub_path_train train \
+--image_sub_path_test test \
+--train_split 1 \
+--eval_mode test \
+--image_size 224 \
+--augmentations_to_use cub_original \
+< model specific parameters > 
+```
+
+- NABirds dataset:
+```
+torchrun \
+--nnodes=<number of machines> \ 
+--nproc_per_node=<gpus per node> \
+<base path to the code>/train_net.py \
+--data_path <base path to dataset>/nabirds \
+--dataset nabirds \
+--image_sub_path_train images \
+--image_sub_path_test images \
+--train_split 1 \
+--eval_mode test \
+--image_size 518 \
+--augmentations_to_use cub_original \
+< model specific parameters >
+```
 
 ### Model-specific Parameters
 - `--model_arch`: The architecture of the model. For the experiments in the paper, we use the [ViT-Base DinoV2](https://huggingface.co/timm/vit_base_patch14_reg4_dinov2.lvd142m) model. In theory, any model from the timm library supported by the [VisionTransformer class](https://github.com/huggingface/pytorch-image-models/blob/main/timm/models/vision_transformer.py) can be used. Additionally, we also support all the torchvision and timm ResNet models and the timm ConvNeXt models. 
-- `--num_parts`: The number of foreground parts to predict. Please adjust this value as required for the dataset. It is recommended to use the values specified in the paper. 
+- `--num_parts`: The number of foreground parts to discover. Please adjust this value as required for the dataset. It is recommended to use the values specified in the paper. 
 - `--pretrained_start_weights`: Use the pre-trained weights for the backbone. This requires an active internet connection. If you want to train from scratch, you can remove this flag.
 - `--use_torchvision_resnet_model`: Use the torchvision implementation of the ResNet model. This is used for the ResNet models. If you want to use the timm implementation, you can remove this flag.
 - `--freeze_backbone`: Freeze the backbone weights. This will freeze all the layers in the ViT backbone, except for the layers we introduce for part discovery, the class, register tokens and position embeddings. This is used for the experiments in the paper. For ResNet and ConvNeXt models, this flag will freeze the entire backbone except for the part discovery layers.
