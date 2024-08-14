@@ -119,5 +119,16 @@ The trained models can be found in the [model zoo](model_zoo.md) file.
 # Issues and Questions
 Feel free to raise an issue if you face any problems with the code or have any questions about the paper.
 
+# Citation
+If you find our work useful in your research, please consider citing:
 
+```
+@inproceedings{aniraj2024pdiscoformer,
+  title={PDiscoFormer: Relaxing Part Discovery Constraints with Vision Transformers},
+  author={Aniraj, Ananthu and Dantas, Cassio F and Ienco, Dino and Marcos, Diego},
+  booktitle={Proceedings of the European Conference on Computer Vision (ECCV)},
+  month={October},
+  year={2024}
+}
+```
 
