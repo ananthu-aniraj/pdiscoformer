@@ -289,7 +289,7 @@ class PDiscoTrainer:
             else:
                 snapshot = fsspec.open(self.snapshot_path)
             with snapshot as f:
-                snapshot_data = torch.load(f, map_location=loc)
+                snapshot_data = torch.load(f, map_location=loc, weights_only=True)
         except FileNotFoundError:
             print("Snapshot not found. Training model from scratch")
             return

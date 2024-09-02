@@ -97,7 +97,7 @@ def benchmark(args):
         raise ValueError('Dataset not supported.')
     # Load the model
     model = load_model_pdisco(args, num_cls)
-    snapshot_data = torch.load(args.model_path, map_location=torch.device('cpu'))
+    snapshot_data = torch.load(args.model_path, map_location=torch.device('cpu'), weights_only=True)
     if 'model_state' in snapshot_data:
         _, state_dict = load_state_dict_pdisco(snapshot_data)
     else:
