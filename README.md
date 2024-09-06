@@ -6,7 +6,7 @@ Official implementation of the paper "PDiscoFormer: Relaxing Part Discovery Cons
 
 [[`Arxiv`]](https://arxiv.org/abs/2407.04538)
 
-## Introduction
+## Youtube Video
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/qPP3JmrHJZo/0.jpg)](https://www.youtube.com/watch?v=qPP3JmrHJZo)
 
 
