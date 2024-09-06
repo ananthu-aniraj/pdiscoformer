@@ -2,17 +2,12 @@
 Official implementation of the paper "PDiscoFormer: Relaxing Part Discovery Constraints with Vision Transformers", accepted as an Oral presentation at ECCV 2024. 
 
 
+
+
 [[`Arxiv`]](https://arxiv.org/abs/2407.04538)
 
 ## Introduction
-In our work, we explore computer vision methods that perform unsupervised part discovery. We introduce a novel method and training objective for this task using self-supervised vision transformers, achieving state-of-the-art results. Our model learns to discover consistent, discriminative parts that are useful for solving image classification tasks, taking a step towards inherently interpretable models.
-
-
-
-![splash_pdisconetV2 (1)](https://github.com/ananthu-aniraj/pdiscoformer/assets/50333505/aa3803c0-2ce0-411e-bb04-a79113c9da07)
-
-![PosterPdiscoformer drawio (1)](https://github.com/ananthu-aniraj/pdiscoformer/assets/50333505/6f8b3453-a4fe-4eda-9e81-741ef3420687)
-
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/qPP3JmrHJZo/0.jpg)](https://www.youtube.com/watch?v=qPP3JmrHJZo)
 
 
 # Abstract
