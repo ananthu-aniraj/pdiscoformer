@@ -3,6 +3,8 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 from typing import Any, Union, Sequence
+
+from huggingface_hub import PyTorchModelHubMixin
 from timm.models import create_model
 from timm.models.vision_transformer import Block, Attention
 from utils.misc_utils import compute_attention
@@ -11,7 +13,8 @@ from layers.transformer_layers import BlockWQKVReturn, AttentionWQKVReturn
 from layers.independent_mlp import IndependentMLPs
 
 
-class IndividualLandmarkViT(torch.nn.Module):
+class IndividualLandmarkViT(torch.nn.Module, PyTorchModelHubMixin,
+                            pipeline_tag='image-classification', repo_url='https://github.com/ananthu-aniraj/pdiscoformer'):
 
     def __init__(self, init_model: torch.nn.Module, num_landmarks: int = 8, num_classes: int = 200,
                  part_dropout: float = 0.3, return_transformer_qkv: bool = False,
