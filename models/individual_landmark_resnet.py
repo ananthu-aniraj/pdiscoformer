@@ -5,7 +5,7 @@ from timm.models import create_model
 from torchvision.models import get_model
 from torch.nn import Parameter
 from typing import Any
-from .layers.independent_mlp import IndependentMLPs
+from layers.independent_mlp import IndependentMLPs
 
 
 # Baseline model, a modified ResNet with reduced downsampling for a spatially larger feature tensor in the last layer

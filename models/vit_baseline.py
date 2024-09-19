@@ -4,9 +4,9 @@ import torch.nn as nn
 from typing import Tuple, Union, Sequence, Any
 from timm.layers import trunc_normal_
 from timm.models.vision_transformer import Block, Attention
-from .layers.transformer_layers import BlockWQKVReturn, AttentionWQKVReturn
+from layers.transformer_layers import BlockWQKVReturn, AttentionWQKVReturn
 
-from utils.misc_utils import compute_attention, compute_dot_product_similarity
+from utils.misc_utils import compute_attention
 
 
 class BaselineViT(torch.nn.Module):

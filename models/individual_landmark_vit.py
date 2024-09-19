@@ -7,8 +7,8 @@ from timm.models import create_model
 from timm.models.vision_transformer import Block, Attention
 from utils.misc_utils import compute_attention
 
-from .layers.transformer_layers import BlockWQKVReturn, AttentionWQKVReturn
-from .layers.independent_mlp import IndependentMLPs
+from layers.transformer_layers import BlockWQKVReturn, AttentionWQKVReturn
+from layers.independent_mlp import IndependentMLPs
 
 
 class IndividualLandmarkViT(torch.nn.Module):

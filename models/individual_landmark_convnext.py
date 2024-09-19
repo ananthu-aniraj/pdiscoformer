@@ -2,7 +2,7 @@ import torch
 from torch import Tensor
 from torch.nn import Parameter
 from typing import Any
-from .layers.independent_mlp import IndependentMLPs
+from layers.independent_mlp import IndependentMLPs
 
 
 # Baseline model, a modified convnext with reduced downsampling for a spatially larger feature tensor in the last layer
