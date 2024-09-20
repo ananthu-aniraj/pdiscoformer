@@ -1,10 +1,12 @@
 # Compostion of the VisionTransformer class from timm with extra features: https://github.com/huggingface/pytorch-image-models/blob/main/timm/models/vision_transformer.py
+from pathlib import Path
+import os
 import torch
 import torch.nn as nn
 from torch import Tensor
-from typing import Any, Union, Sequence
+from typing import Any, Union, Sequence, Optional, Dict
 
-from huggingface_hub import PyTorchModelHubMixin
+from huggingface_hub import PyTorchModelHubMixin, hf_hub_download, EntryNotFoundError, constants
 from timm.models import create_model
 from timm.models.vision_transformer import Block, Attention
 from utils.misc_utils import compute_attention
@@ -14,7 +16,8 @@ from layers.independent_mlp import IndependentMLPs
 
 
 class IndividualLandmarkViT(torch.nn.Module, PyTorchModelHubMixin,
-                            pipeline_tag='image-classification', repo_url='https://github.com/ananthu-aniraj/pdiscoformer'):
+                            pipeline_tag='image-classification',
+                            repo_url='https://github.com/ananthu-aniraj/pdiscoformer'):
 
     def __init__(self, init_model: torch.nn.Module, num_landmarks: int = 8, num_classes: int = 200,
                  part_dropout: float = 0.3, return_transformer_qkv: bool = False,
@@ -296,6 +299,57 @@ class IndividualLandmarkViT(torch.nn.Module, PyTorchModelHubMixin,
             return return_out, qkv
         else:
             return return_out
+
+    @classmethod
+    def _from_pretrained(
+            cls,
+            *,
+            model_id: str,
+            revision: Optional[str],
+            cache_dir: Optional[Union[str, Path]],
+            force_download: bool,
+            proxies: Optional[Dict],
+            resume_download: Optional[bool],
+            local_files_only: bool,
+            token: Union[str, bool, None],
+            map_location: str = "cpu",
+            strict: bool = False,
+            timm_backbone: str = "hf_hub:timm/vit_base_patch14_reg4_dinov2.lvd142m",
+            input_size: int = 518,
+            **model_kwargs):
+        base_model = create_model(timm_backbone, pretrained=True, img_size=input_size)
+        model = cls(base_model, **model_kwargs)
+        if os.path.isdir(model_id):
+            print("Loading weights from local directory")
+            model_file = os.path.join(model_id, constants.SAFETENSORS_SINGLE_FILE)
+            return cls._load_as_safetensor(model, model_file, map_location, strict)
+        else:
+            try:
+                model_file = hf_hub_download(
+                    repo_id=model_id,
+                    filename=constants.SAFETENSORS_SINGLE_FILE,
+                    revision=revision,
+                    cache_dir=cache_dir,
+                    force_download=force_download,
+                    proxies=proxies,
+                    resume_download=resume_download,
+                    token=token,
+                    local_files_only=local_files_only,
+                )
+                return cls._load_as_safetensor(model, model_file, map_location, strict)
+            except EntryNotFoundError:
+                model_file = hf_hub_download(
+                    repo_id=model_id,
+                    filename=constants.PYTORCH_WEIGHTS_NAME,
+                    revision=revision,
+                    cache_dir=cache_dir,
+                    force_download=force_download,
+                    proxies=proxies,
+                    resume_download=resume_download,
+                    token=token,
+                    local_files_only=local_files_only,
+                )
+                return cls._load_as_pickle(model, model_file, map_location, strict)
 
 
 def pdiscoformer_vit_bb(backbone, img_size=224, num_cls=200, k=8, **kwargs):
