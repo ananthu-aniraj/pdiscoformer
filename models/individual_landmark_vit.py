@@ -320,7 +320,7 @@ class IndividualLandmarkViT(torch.nn.Module, PyTorchModelHubMixin,
             timm_backbone: str = "hf_hub:timm/vit_base_patch14_reg4_dinov2.lvd142m",
             input_size: int = 518,
             **model_kwargs):
-        base_model = create_model(timm_backbone, pretrained=True, img_size=input_size)
+        base_model = create_model(timm_backbone, pretrained=False, img_size=input_size)
         model = cls(base_model, **model_kwargs)
         if os.path.isdir(model_id):
             print("Loading weights from local directory")
