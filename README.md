@@ -21,7 +21,7 @@ Computer vision methods that explicitly detect object parts and reason on them a
 1. The code has been updated to support the NABirds dataset. The corresponding evaluation metrics and pre-trained models have also been added.
 2. The models are available via torch hub. The details can be found in the [model zoo](model_zoo.md) file.
 3. PDiscoformer has been accepted as an Oral presentation at ECCV 2024 :tada:
-4. Models are now available via HuggingFace (Thanks to [Niels Rogge](https://github.com/NielsRogge) and [Merve Noyan](https://github.com/merveenoyan)
+4. Models are now available via HuggingFace. Thanks to [Niels Rogge](https://github.com/NielsRogge) and [Merve Noyan](https://github.com/merveenoyan).
 
 # Setup
 To install the required packages, run the following command:
