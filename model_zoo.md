@@ -7,7 +7,30 @@ We provide the pre-trained models for the following datasets:
 - PartImageNet Seg
 - NABirds
 
-The models can be downloaded from the links provided below. They can also be loaded using torch hub using the code snippet provided below.
+The models can be downloaded from the links provided below. They can also be loaded using torch hub using the code snippets provided below.
+
+## How to Get Started with the Model with Hugging Face 🤗
+```python
+from models import IndividualLandmarkViT
+
+# CUB Models
+pdiscoformer_cub_k_4 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_cub_k_4")
+pdiscoformer_cub_k_8 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_cub_k_8")
+pdiscoformer_cub_k_16 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_cub_k_16")
+
+# PartImageNet OOD Models
+pdiscoformer_partimagenet_ood_k_8 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_part_imagenet_ood_k_8", input_size=224)
+pdiscoformer_partimagenet_ood_k_25 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_part_imagenet_ood_k_25", input_size=224)
+pdiscoformer_partimagenet_ood_k_50 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_part_imagenet_ood_k_50", input_size=224)
+
+# Oxford Flowers Models
+pdiscoformer_flowers_k_2 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_flowers_k_2", input_size=224)
+pdiscoformer_flowers_k_4 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_flowers_k_4", input_size=224)
+pdiscoformer_flowers_k_8 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_flowers_k_8", input_size=224)
+```
+
+
+
 ## How to Get Started with the Model with Torch Hub
 
 ```python
