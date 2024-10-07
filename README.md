@@ -4,7 +4,7 @@ Official implementation of the paper "PDiscoFormer: Relaxing Part Discovery Cons
 
 
 
-[[`Paper`]](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11397.pdf) [[`Arxiv`]](https://arxiv.org/abs/2407.04538) [[`🤗 Page`]](https://huggingface.co/papers/2407.04538)
+[[`Paper`]](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11397.pdf) [[`Supplementary Material`]](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11397-supp.pdf) [[`Arxiv`]](https://arxiv.org/abs/2407.04538) [[`🤗 Page`]](https://huggingface.co/papers/2407.04538)
 
 ## Youtube Video
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/qPP3JmrHJZo/0.jpg)](https://www.youtube.com/watch?v=qPP3JmrHJZo)
