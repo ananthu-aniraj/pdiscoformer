@@ -37,20 +37,20 @@ pdiscoformer_flowers_k_8 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj
 import torch
 
 # CUB Models
-pdiscoformer_cub_k_4 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_4', pretrained=True)
-pdiscoformer_cub_k_8 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_8', pretrained=True)
-pdiscoformer_cub_k_16 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_16', pretrained=True)
+pdiscoformer_cub_k_4 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_4', pretrained=True, trust_repo=True)
+pdiscoformer_cub_k_8 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_8', pretrained=True, trust_repo=True)
+pdiscoformer_cub_k_16 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_16', pretrained=True, trust_repo=True)
 
 # PartImageNet OOD Models
-pdiscoformer_partimagenet_ood_k_8 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_8', pretrained=True)
-pdiscoformer_partimagenet_ood_k_25 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_25', pretrained=True)
-pdiscoformer_partimagenet_ood_k_50 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_50', pretrained=True)
+pdiscoformer_partimagenet_ood_k_8 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_8', pretrained=True, trust_repo=True)
+pdiscoformer_partimagenet_ood_k_25 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_25', pretrained=True, trust_repo=True)
+pdiscoformer_partimagenet_ood_k_50 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_50', pretrained=True, trust_repo=True)
 
 
 # Oxford Flowers Models
-pdiscoformer_flowers_k_2 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_2', pretrained=True)
-pdiscoformer_flowers_k_4 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_4', pretrained=True)
-pdiscoformer_flowers_k_8 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_8', pretrained=True)
+pdiscoformer_flowers_k_2 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_2', pretrained=True, trust_repo=True)
+pdiscoformer_flowers_k_4 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_4', pretrained=True, trust_repo=True)
+pdiscoformer_flowers_k_8 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_8', pretrained=True, trust_repo=True)
 ```
 
 The full list of model keys are provided using the following code snippet:
