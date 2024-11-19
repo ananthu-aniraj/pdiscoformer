@@ -93,7 +93,7 @@ def create_centers(data_loader, model, num_parts, num_landmarks, device=torch.de
 
             gt_labels.append(gt_class.unsqueeze(0))
             pred_final.append(logits.argmax().unsqueeze(0))
-            pred_landmarks.append(logits_parts[:, :, :-1].argmax(1))
+            pred_landmarks.append(logits_parts.argmax(1))
             present_landmarks.append(assignment.max(-1)[0].max(-1)[0].view(-1))
 
     # list into tensors
