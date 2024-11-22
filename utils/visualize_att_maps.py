@@ -47,7 +47,6 @@ class VisualizeAttentionMaps:
         self.nrows = factors(self.batch_size)[-1]
         self.ncols = factors(self.batch_size)[-2]
         self.num_parts = num_parts
-        self.req_colors = colors[:num_parts]
         self.plot_ims_separately = plot_ims_separately
         self.plot_landmark_amaps = plot_landmark_amaps
         if self.nrows == 1 and self.ncols == 1:
@@ -89,8 +88,14 @@ class VisualizeAttentionMaps:
         map_argmax = torch.nn.functional.interpolate(maps.clone().detach(), size=self.save_resolution,
                                                      mode='bilinear',
                                                      align_corners=True).argmax(dim=1).cpu().numpy()
+
+        # Select colors for parts which are present
+        parts_present = np.unique(map_argmax).tolist()
+        if self.bg_label in parts_present:
+            parts_present.remove(self.bg_label)
+        colors_present = [colors[i] for i in parts_present]
         for i, ax in enumerate(axs.ravel()):
-            curr_map = skimage.color.label2rgb(label=map_argmax[i], image=ims[i], colors=self.req_colors,
+            curr_map = skimage.color.label2rgb(label=map_argmax[i], image=ims[i], colors=colors_present,
                                                bg_label=self.bg_label, alpha=self.alpha)
             ax.imshow(curr_map)
             ax.axis('off')
