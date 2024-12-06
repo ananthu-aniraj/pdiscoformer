@@ -121,7 +121,6 @@ If you find our work useful in your research, please consider citing:
   title = {{PDiscoFormer: Relaxing Part Discovery Constraints with Vision Transformers}},
   author = {Aniraj, Ananthu and Dantas, Cassio F. and Ienco, Dino and Marcos, Diego},
   booktitle = {{ECCV 2024 - 18th European Conference on Computer Vision}},
-  month = sep,
   year = {2024},
   publisher = {{Springer Nature Switzerland}},
   series = {Lecture Notes in Computer Science},
