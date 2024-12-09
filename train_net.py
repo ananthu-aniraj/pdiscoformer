@@ -79,6 +79,7 @@ def pdisco_train_eval():
                           amap_saving_prob=args.amap_saving_prob,
                           class_balanced_sampling=args.use_class_balanced_sampling,
                           num_samples_per_class=args.num_samples_per_class,
+                          grad_accumulation_steps=args.grad_accumulation_steps,
                           )
 
     # End the timer and print out how long it took

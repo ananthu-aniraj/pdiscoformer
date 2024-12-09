@@ -15,7 +15,9 @@ The scaling is not implemented in the training script, so you will have to manua
 
 ### Recommended Batch Sizes 
 - For models trained on CUB/NABirds, we recommend using a batch size of 32 (or higher).
-- For models trained on PartImageNet OOD, PartImageNet Seg, and Flowers102 we recommend using a batch size of 128 (or higher). For lower batch sizes, you may need to turn on the weight decay to stabilize the training (recommended value is 0.05).
+- For models trained on PartImageNet OOD, PartImageNet Seg, and Flowers102 we recommend using a batch size of 128 (or higher). 
+- In case these batch sizes do not fit in the GPU memory, you can use gradient accumulation to simulate a higher batch size. For example, if you have 1 GPU which can only fit a batch size of 16, you can set the `--gradient_accumulation_steps` parameter to 2 to simulate a batch size of 32. 
+
 
 ## Experiment Tracking
 It is recommended to use [Weights and Biases](https://wandb.ai/site) for tracking the experiments. The `--wandb` flag can be used to enable this feature. Feel free to remove the `--wandb` flag if you don`t want to use it.
@@ -218,6 +220,7 @@ torchrun \
 - `--scratch_lr_factor`: The learning rate factor for the scratch layers. The default value is 1e4. We use this value for all the experiments in the paper.
 - `--modulation_lr_factor`: The learning rate factor for the modulation layers. The default value is 1e4. We use this value for all the experiments in the paper.
 - `--finer_lr_factor`: The learning rate factor for the finer layers. The default value is 1e3. We use this value for all the experiments in the paper.
+- `--grad_accumulation_steps`: The number of gradient accumulation steps. The default value is 1. We use this value for all the experiments in the paper. Use this if your GPU memory is not sufficient to fit the batch size.
 
 ### Loss Hyper-Parameters
 The loss hyperparameters are already set to the values used in the paper. See the [training arguments script](argument_parser_train.py) for more details.

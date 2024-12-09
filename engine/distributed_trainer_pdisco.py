@@ -50,6 +50,7 @@ class PDiscoTrainer:
             amap_saving_prob: float = 0.05,
             class_balanced_sampling: bool = False,
             num_samples_per_class: int = 100,
+            grad_accumulation_steps: int = 1,
     ) -> None:
         self._init_ddp(use_ddp)
         self.num_landmarks = model.num_landmarks
@@ -95,7 +96,7 @@ class PDiscoTrainer:
         self.mixup_fn = mixup_fn
         self.epoch_test_accuracies = []
         self.current_epoch = 0
-        self.accum_steps = 1
+        self.accum_steps = grad_accumulation_steps
 
         # Equivariance affine transform parameters
         self._init_affine_transform_params(eq_affine_transform_params)
@@ -354,19 +355,25 @@ class PDiscoTrainer:
                 loss_pixel_wise_entropy = pixel_wise_entropy_loss(maps) * self.l_pixel_wise_entropy
 
                 loss = loss_conc + loss_presence + loss_classification + loss_orth + loss_equiv + loss_tv + loss_enforced_presence + loss_pixel_wise_entropy
+                loss /= self.accum_steps
 
-                self.optimizer.zero_grad(set_to_none=True)
                 if self.use_amp:
                     self.scaler.scale(loss).backward()
-                    if self.grad_norm_clip:
-                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_norm_clip)
-                    self.scaler.step(self.optimizer)
-                    self.scaler.update()
                 else:
                     loss.backward()
-                    if self.grad_norm_clip:
-                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_norm_clip)
-                    self.optimizer.step()
+
+                if (curr_iter + 1) % self.accum_steps == 0 or curr_iter == len(self.train_loader) - 1:
+                    if self.use_amp:
+                        if self.grad_norm_clip:
+                            self.scaler.unscale_(self.optimizer)
+                            torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_norm_clip)
+                        self.scaler.step(self.optimizer)
+                        self.scaler.update()
+                    else:
+                        if self.grad_norm_clip:
+                            torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_norm_clip)
+                        self.optimizer.step()
+                    self.optimizer.zero_grad(set_to_none=True)
 
                 losses_dict = {'loss_classification_train': loss_classification.item(),
                                'loss_conc_train': loss_conc.item(),
@@ -402,10 +409,9 @@ class PDiscoTrainer:
             dataloader.sampler.set_epoch(epoch)
 
         last_accum_steps = len(dataloader) % self.accum_steps
-        updates_per_epoch = (len(dataloader) + self.accum_steps - 1) // self.accum_steps
+        updates_per_epoch = len(dataloader) // self.accum_steps + (1 if last_accum_steps > 0 else 0)
         num_updates = (epoch - 1) * updates_per_epoch
         last_batch_idx = len(dataloader) - 1
-        last_batch_idx_to_accum = len(dataloader) - last_accum_steps
 
         vis_att_maps = True if epoch % self.save_every == 0 else False
         vis_att_maps = True if epoch == self.max_epochs else vis_att_maps
@@ -441,8 +447,9 @@ class PDiscoTrainer:
                 if self.mixup_fn is None:
                     for key in self.acc_dict_train.keys():
                         self.acc_dict_train[key].update(batch_preds, targets)
-                num_updates += 1
-                self.scheduler.step_update(num_updates=num_updates)
+                if (it + 1) % self.accum_steps == 0 or it == last_batch_idx:
+                    num_updates += 1
+                    self.scheduler.step_update(num_updates=num_updates)
             else:
                 for key in losses_dict.keys():
                     self.loss_dict_val[key].update(losses_dict[key], source.size(0))
@@ -592,6 +599,7 @@ def launch_pdisco_trainer(model: torch.nn.Module,
                           amap_saving_prob: float = 0.05,
                           class_balanced_sampling: bool = False,
                           num_samples_per_class: int = 100,
+                          grad_accumulation_steps: int = 1,
                           ) -> None:
     """Trains and tests a PyTorch model.
 
@@ -627,6 +635,7 @@ def launch_pdisco_trainer(model: torch.nn.Module,
     amap_saving_prob: A float indicating the probability of saving attention maps.
     class_balanced_sampling: A boolean indicating whether to use class-balanced sampling
     num_samples_per_class: An integer indicating the number of samples per class for class-balanced sampling
+    grad_accumulation_steps: An integer indicating the number of steps to accumulate gradients over.
     @rtype: None
     """
 
@@ -647,7 +656,7 @@ def launch_pdisco_trainer(model: torch.nn.Module,
                                   sub_path_test=sub_path_test, dataset_name=dataset_name,
                                   amap_saving_prob=amap_saving_prob,
                                   class_balanced_sampling=class_balanced_sampling,
-                                  num_samples_per_class=num_samples_per_class)
+                                  num_samples_per_class=num_samples_per_class, grad_accumulation_steps=grad_accumulation_steps)
     if eval_only:
         model_trainer.test_only()
     else:
