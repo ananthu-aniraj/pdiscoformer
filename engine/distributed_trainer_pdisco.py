@@ -360,40 +360,42 @@ class PDiscoTrainer:
 
                 loss = loss_conc + loss_presence + loss_classification + loss_orth + loss_equiv + loss_tv + loss_enforced_presence + loss_pixel_wise_entropy
                 loss /= self.accum_steps
-
-                if self.use_amp:
-                    self.scaler.scale(loss).backward()
-                else:
-                    loss.backward()
-
-                if (curr_iter + 1) % self.accum_steps == 0 or curr_iter == len(self.train_loader) - 1:
-                    if self.use_amp:
-                        if self.grad_norm_clip:
-                            self.scaler.unscale_(self.optimizer)
-                            torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_norm_clip)
-                        self.scaler.step(self.optimizer)
-                        self.scaler.update()
-                    else:
-                        if self.grad_norm_clip:
-                            torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_norm_clip)
-                        self.optimizer.step()
-                    self.optimizer.zero_grad(set_to_none=True)
-
-                losses_dict = {'loss_classification_train': loss_classification.item(),
-                               'loss_conc_train': loss_conc.item(),
-                               'loss_presence_train': loss_presence.item(),
-                               'loss_orth_train': loss_orth.item(),
-                               'loss_equiv_train': loss_equiv.item(),
-                               'loss_total_train': loss.item(), 'loss_tv': loss_tv.item(),
-                               'loss_enforced_presence': loss_enforced_presence.item(),
-                               'loss_pixel_wise_entropy': loss_pixel_wise_entropy.item()}
             else:
                 loss = self.loss_fn_eval(outputs, targets)
-                losses_dict = {'loss_total_val': loss.item()}
-                if vis_att_maps:
-                    if np.random.random() < self.amap_saving_prob:
-                        self.vis_att_maps.show_maps(ims=source, maps=maps, epoch=self.current_epoch,
-                                                    curr_iter=curr_iter)
+
+        if train:
+            if self.use_amp:
+                self.scaler.scale(loss).backward()
+            else:
+                loss.backward()
+
+            if (curr_iter + 1) % self.accum_steps == 0 or curr_iter == len(self.train_loader) - 1:
+                if self.use_amp:
+                    if self.grad_norm_clip:
+                        self.scaler.unscale_(self.optimizer)
+                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_norm_clip)
+                    self.scaler.step(self.optimizer)
+                    self.scaler.update()
+                else:
+                    if self.grad_norm_clip:
+                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_norm_clip)
+                    self.optimizer.step()
+                self.optimizer.zero_grad(set_to_none=True)
+
+            losses_dict = {'loss_classification_train': loss_classification.item(),
+                           'loss_conc_train': loss_conc.item(),
+                           'loss_presence_train': loss_presence.item(),
+                           'loss_orth_train': loss_orth.item(),
+                           'loss_equiv_train': loss_equiv.item(),
+                           'loss_total_train': loss.item(), 'loss_tv': loss_tv.item(),
+                           'loss_enforced_presence': loss_enforced_presence.item(),
+                           'loss_pixel_wise_entropy': loss_pixel_wise_entropy.item()}
+        else:
+            losses_dict = {'loss_total_val': loss.item()}
+            if vis_att_maps:
+                if np.random.random() < self.amap_saving_prob:
+                    self.vis_att_maps.show_maps(ims=source, maps=maps, epoch=self.current_epoch,
+                                                curr_iter=curr_iter)
         return outputs, losses_dict
 
     def _run_epoch(self, epoch: int, dataloader: DataLoader, train: bool = True):
