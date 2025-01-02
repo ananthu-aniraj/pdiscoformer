@@ -17,6 +17,7 @@ The scaling is not implemented in the training script, so you will have to manua
 - For models trained on CUB/NABirds, we recommend using a batch size of 32 (or higher).
 - For models trained on PartImageNet OOD, PartImageNet Seg, and Flowers102 we recommend using a batch size of 128 (or higher). 
 - In case these batch sizes do not fit in the GPU memory, you can use gradient accumulation to simulate a higher batch size. For example, if you have 1 GPU which can only fit a batch size of 16, you can set the `--gradient_accumulation_steps` parameter to 2 to simulate a batch size of 32. In this case, please use the learning rate corresponding to the batch size of 16.
+- Another option is to use mixed precision training. To use this, use the `--use_amp` flag in the training script. This will automatically use the `torch.cuda.amp` library for mixed precision training and should help in reducing the memory footprint.
 
 
 ## Experiment Tracking
