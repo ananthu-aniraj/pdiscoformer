@@ -5,6 +5,7 @@ from typing import Dict, List, Any
 
 import fsspec
 import numpy as np
+import torch
 from timm.data import Mixup
 from torch.distributed import destroy_process_group
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -108,7 +109,7 @@ class PDiscoTrainer:
         self._init_loss_dict()
 
         if use_amp:
-            self.scaler = torch.cuda.amp.GradScaler()
+            self.scaler = torch.GradScaler(device="cuda")
 
         if os.path.isfile(os.path.join(snapshot_path, f"snapshot_best.pt")):
             print("Loading snapshot")
