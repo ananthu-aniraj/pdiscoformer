@@ -26,8 +26,8 @@ def presence_loss_tanh(maps: torch.Tensor):
     """
     pooled_maps = torch.tanh(torch.sum(torch.nn.functional.adaptive_max_pool2d(torch.nn.functional.avg_pool2d(
         maps, 3, stride=1), 1).flatten(start_dim=1), dim=0))
-
-    loss_max = torch.nn.functional.binary_cross_entropy(pooled_maps, target=torch.ones_like(pooled_maps))
+    with torch.amp.autocast(device_type='cuda', enabled=False):
+        loss_max = torch.nn.functional.binary_cross_entropy(pooled_maps, target=torch.ones_like(pooled_maps))
 
     return loss_max
 

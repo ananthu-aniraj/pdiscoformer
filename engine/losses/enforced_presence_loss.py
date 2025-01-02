@@ -43,13 +43,16 @@ class EnforcedPresenceLoss(torch.nn.Module):
             masked_bg_part_activation = masked_part_activation[:, -1, :, :]
 
             max_pooled_maps = torch.nn.functional.adaptive_max_pool2d(masked_bg_part_activation, 1).flatten(start_dim=0)
-            loss_area = torch.nn.functional.binary_cross_entropy(max_pooled_maps, torch.ones_like(max_pooled_maps))
+            # Turn off AMP for this line
+            with torch.amp.autocast(device_type='cuda', enabled=False):
+                loss_area = torch.nn.functional.binary_cross_entropy(max_pooled_maps, torch.ones_like(max_pooled_maps))
         else:
             part_activation_sums = torch.nn.functional.adaptive_avg_pool2d(maps, 1).flatten(start_dim=1)
             background_part_activation = part_activation_sums[:, -1]
             if self.loss_type == "log":
-                loss_area = torch.nn.functional.binary_cross_entropy(background_part_activation,
-                                                                     torch.ones_like(background_part_activation))
+                with torch.amp.autocast(device_type='cuda', enabled=False):
+                    loss_area = torch.nn.functional.binary_cross_entropy(background_part_activation,
+                                                                         torch.ones_like(background_part_activation))
 
             elif self.loss_type == "linear":
                 loss_area = (1 - background_part_activation).mean()
