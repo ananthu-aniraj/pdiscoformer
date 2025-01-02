@@ -109,7 +109,10 @@ class PDiscoTrainer:
         self._init_loss_dict()
 
         if use_amp:
-            self.scaler = torch.GradScaler(device="cuda")
+            try:
+                self.scaler = torch.GradScaler(device="cuda")
+            except AttributeError:
+                self.scaler = torch.cuda.amp.GradScaler()
 
         if os.path.isfile(os.path.join(snapshot_path, f"snapshot_best.pt")):
             print("Loading snapshot")
