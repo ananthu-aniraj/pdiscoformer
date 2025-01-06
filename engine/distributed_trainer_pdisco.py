@@ -98,6 +98,8 @@ class PDiscoTrainer:
         self.epoch_test_accuracies = []
         self.current_epoch = 0
         self.accum_steps = grad_accumulation_steps
+        assert self.accum_steps % self.world_size == 0, "Accumulation steps must be divisible by world size"
+        self.accum_steps //= self.world_size
 
         # Equivariance affine transform parameters
         self._init_affine_transform_params(eq_affine_transform_params)

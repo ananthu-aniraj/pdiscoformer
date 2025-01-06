@@ -116,10 +116,12 @@ def multi_gpu_check():
     :return:
     use_ddp: bool, whether to use DDP or not
     """
-    if torch.cuda.device_count() > 1:
-        use_ddp = True
-    else:
-        use_ddp = False
+    torchrun_active = int(os.environ.get('RANK', -1)) != -1  # is this a ddp run?
+    slurm_active = "SLURM_NODEID" in os.environ  # is this a slurm job?
+    if slurm_active:
+        # Check device count
+        slurm_active = torch.cuda.device_count() > 1
+    use_ddp = torchrun_active or slurm_active
     return use_ddp
 
 
