@@ -22,6 +22,10 @@ from utils.training_utils.engine_utils import load_state_dict_pdisco, AverageMet
 from utils.wandb_params import init_wandb
 from .losses import *
 
+amp_dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16'  # 'float32', 'bfloat16', or 'float16', the latter will auto implement a GradScaler
+# note: float16 data type will automatically use a GradScaler
+pt_dtype = {'float32': torch.float32, 'bfloat16': torch.bfloat16, 'float16': torch.float16}[amp_dtype]
+
 
 class PDiscoTrainer:
     def __init__(
@@ -91,7 +95,6 @@ class PDiscoTrainer:
         self.log_freq = log_freq
         self.optimizer = optimizer
         self.scheduler = scheduler
-        self.use_amp = use_amp
         self.grad_norm_clip = grad_norm_clip
         self.max_epochs = max_epochs
         self.mixup_fn = mixup_fn
@@ -110,11 +113,19 @@ class PDiscoTrainer:
         # Loss dictionary
         self._init_loss_dict()
 
+        # Find Pytorch data type
         if use_amp:
-            try:
-                self.scaler = torch.GradScaler(device="cuda")
-            except AttributeError:
-                self.scaler = torch.cuda.amp.GradScaler()
+            self.pt_dtype = pt_dtype
+            self.amp_dtype = amp_dtype
+        else:
+            self.amp_dtype = 'float32'
+            self.pt_dtype = pt_dtype[self.amp_dtype]
+
+        # Initialize the GradScaler
+        try:
+            self.scaler = torch.GradScaler(device="cuda", enabled=(self.amp_dtype == 'float16'))
+        except AttributeError:
+            self.scaler = torch.cuda.amp.GradScaler(enabled=(self.amp_dtype == 'float16'))
 
         if os.path.isfile(os.path.join(snapshot_path, f"snapshot_best.pt")):
             print("Loading snapshot")
@@ -208,9 +219,9 @@ class PDiscoTrainer:
 
     def _init_accuracy_metrics(self) -> None:
         self.acc_dict_train = {'train_acc': torchmetrics.classification.MulticlassAccuracy(
-                                num_classes=self.num_classes, top_k=1,
-                                average="micro").to(self.local_rank,
-                                                    non_blocking=True),
+            num_classes=self.num_classes, top_k=1,
+            average="micro").to(self.local_rank,
+                                non_blocking=True),
                                'train_acc_top5': torchmetrics.classification.MulticlassAccuracy(
                                    num_classes=self.num_classes, top_k=5,
                                    average="micro").to(self.local_rank,
@@ -225,13 +236,13 @@ class PDiscoTrainer:
                                                        non_blocking=True)}
 
         self.acc_dict_test = {'test_acc': torchmetrics.classification.MulticlassAccuracy(
-                                num_classes=self.num_classes, top_k=1,
-                                average="micro").to(self.local_rank,
-                                                    non_blocking=True),
+            num_classes=self.num_classes, top_k=1,
+            average="micro").to(self.local_rank,
+                                non_blocking=True),
                               'test_acc_top5': torchmetrics.classification.MulticlassAccuracy(
-                                   num_classes=self.num_classes, top_k=5,
-                                   average="micro").to(self.local_rank,
-                                                       non_blocking=True),
+                                  num_classes=self.num_classes, top_k=5,
+                                  average="micro").to(self.local_rank,
+                                                      non_blocking=True),
                               'macro_avg_acc_top1_test': torchmetrics.classification.MulticlassAccuracy(
                                   num_classes=self.num_classes, top_k=1,
                                   average="macro").to(self.local_rank,
@@ -366,22 +377,14 @@ class PDiscoTrainer:
                 loss = self.loss_fn_eval(outputs, targets)
 
         if train:
-            if self.use_amp:
-                self.scaler.scale(loss).backward()
-            else:
-                loss.backward()
+            self.scaler.scale(loss).backward()
 
             if (curr_iter + 1) % self.accum_steps == 0 or curr_iter == len(self.train_loader) - 1:
-                if self.use_amp:
-                    if self.grad_norm_clip:
-                        self.scaler.unscale_(self.optimizer)
-                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_norm_clip)
-                    self.scaler.step(self.optimizer)
-                    self.scaler.update()
-                else:
-                    if self.grad_norm_clip:
-                        torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_norm_clip)
-                    self.optimizer.step()
+                if self.grad_norm_clip:
+                    self.scaler.unscale_(self.optimizer)
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_norm_clip)
+                self.scaler.step(self.optimizer)
+                self.scaler.update()
                 self.optimizer.zero_grad(set_to_none=True)
 
             losses_dict = {'loss_classification_train': loss_classification.item(),
@@ -664,7 +667,8 @@ def launch_pdisco_trainer(model: torch.nn.Module,
                                   sub_path_test=sub_path_test, dataset_name=dataset_name,
                                   amap_saving_prob=amap_saving_prob,
                                   class_balanced_sampling=class_balanced_sampling,
-                                  num_samples_per_class=num_samples_per_class, grad_accumulation_steps=grad_accumulation_steps)
+                                  num_samples_per_class=num_samples_per_class,
+                                  grad_accumulation_steps=grad_accumulation_steps)
     if eval_only:
         model_trainer.test_only()
     else:
