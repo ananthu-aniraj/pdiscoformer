@@ -323,8 +323,7 @@ class PDiscoTrainer:
 
     def _run_batch(self, source, targets, train: bool = True, vis_att_maps: bool = False, curr_iter: int = 0) -> \
             Tuple[Any, Any]:
-        with torch.set_grad_enabled(train), torch.amp.autocast(device_type="cuda", dtype=torch.float16,
-                                                               enabled=self.use_amp):
+        with torch.set_grad_enabled(train), torch.amp.autocast(device_type="cuda", dtype=self.pt_dtype):
             all_features, maps, scores, dis_sim_maps = self.model(source)
 
             outputs = scores.mean(dim=-1)  # (batch_size, num_classes)
