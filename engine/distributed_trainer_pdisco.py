@@ -323,6 +323,8 @@ class PDiscoTrainer:
 
     def _run_batch(self, source, targets, train: bool = True, vis_att_maps: bool = False, curr_iter: int = 0) -> \
             Tuple[Any, Any]:
+        if train and self.use_ddp:
+            self.model.require_backward_grad_sync = ((curr_iter + 1) % self.accum_steps == 0 or curr_iter == len(self.train_loader) - 1)
         with torch.set_grad_enabled(train), torch.amp.autocast(device_type="cuda", dtype=self.pt_dtype):
             all_features, maps, scores, dis_sim_maps = self.model(source)
 
