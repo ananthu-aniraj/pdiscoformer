@@ -4,7 +4,7 @@ Official implementation of the paper "PDiscoFormer: Relaxing Part Discovery Cons
 
 
 
-[[`🤗 Space`]](https://huggingface.co/spaces/ananthu-aniraj/pdiscoformer)[[`Paper`]](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11397.pdf) [[`Supp.`]](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11397-supp.pdf) [[`Arxiv`]](https://arxiv.org/abs/2407.04538) [[`🤗 Page`]](https://huggingface.co/papers/2407.04538) [[`Video`]](https://www.youtube.com/watch?v=qPP3JmrHJZo)
+[[`Oral`]](https://eccv.ecva.net/virtual/2024/oral/125)[[`🤗 Space`]](https://huggingface.co/spaces/ananthu-aniraj/pdiscoformer)[[`Paper`]](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11397.pdf) [[`Supp.`]](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11397-supp.pdf) [[`Arxiv`]](https://arxiv.org/abs/2407.04538) [[`🤗 Page`]](https://huggingface.co/papers/2407.04538) 
 
 
 # Abstract
