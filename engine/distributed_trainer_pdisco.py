@@ -117,7 +117,7 @@ class PDiscoTrainer:
             self.amp_dtype = amp_dtype
         else:
             self.amp_dtype = 'float32'
-            self.pt_dtype = pt_dtype[self.amp_dtype]
+            self.pt_dtype = torch.float32
 
         # Initialize the GradScaler
         try:
