@@ -116,8 +116,8 @@ def parse_args():
     parser.add_argument('--scheduler_restart_factor', default=1, type=int)
     parser.add_argument('--scheduler_gamma', default=0.1, type=float)
     parser.add_argument('--scheduler_step_size', default=10, type=int)
-    parser.add_argument('--min_lr', type=float, default=1e-6, metavar='LR',
-                        help='lower lr bound for cyclic schedulers that hit 0 (1e-6)')
+    parser.add_argument('--min_lr', type=float, default=0.0, metavar='LR',
+                        help='lower lr bound for cyclic schedulers that hit 0')
     parser.add_argument('--cosine_cycle_limit', default=1, type=int)
 
     # * LR params for each param group
