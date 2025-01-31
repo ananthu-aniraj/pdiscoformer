@@ -56,6 +56,7 @@ def load_classification_loss(args, num_cls):
     else:
         if args.use_bce_loss:
             loss_fn_train = BinaryCrossEntropy(
+                smoothing=0.0,
                 target_threshold=args.bce_target_thresh,
                 sum_classes=args.bce_sum,
                 pos_weight=args.bce_pos_weight,
