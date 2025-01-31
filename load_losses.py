@@ -1,42 +1,65 @@
 import torch
 from timm.data.mixup import Mixup
-from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
-from pytopk import ImbalNoisedTopK
+from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy, BinaryCrossEntropy
 
 
-def load_classification_loss(args, dataset_train, num_cls):
+def load_mixup_fn(args, num_classes):
+    """Load the mixup function"""
+    mixup_fn = None
+    mixup_active = args.mixup > 0 or args.cutmix > 0. or args.cutmix_minmax is not None
+    if mixup_active:
+        mixup_args = dict(
+            mixup_alpha=args.mixup,
+            cutmix_alpha=args.cutmix,
+            cutmix_minmax=args.cutmix_minmax,
+            prob=args.mixup_prob,
+            switch_prob=args.mixup_switch_prob,
+            mode=args.mixup_mode,
+            label_smoothing=args.smoothing,
+            num_classes=num_classes,
+        )
+        mixup_fn = Mixup(**mixup_args)
+    return mixup_fn
+
+
+def load_classification_loss(args, num_cls):
     """
     Load the loss function for classification
     :param args: Arguments from the argument parser
-    :param dataset_train: Training dataset
     :param num_cls: Number of classes in the dataset
     :return:
     loss_fn: List of loss functions for training and evaluation
     """
     # Mixup/Cutmix
-    mixup_fn = None
-    mixup_active = args.turn_on_mixup_or_cutmix
+    mixup_active = args.mixup > 0 or args.cutmix > 0. or args.cutmix_minmax is not None
+    mixup_fn = load_mixup_fn(args, num_cls)
+    # Set up loss function for training
     if mixup_active:
-        print("Mixup is activated! Please note that this may not work with the equivariance loss")
-        mixup_fn = Mixup(
-            mixup_alpha=args.mixup, cutmix_alpha=args.cutmix, cutmix_minmax=args.cutmix_minmax,
-            prob=args.mixup_prob, switch_prob=args.mixup_switch_prob, mode=args.mixup_mode,
-            label_smoothing=args.smoothing, num_classes=num_cls)
-
-    if args.use_imbalanced_noised_topk:
-        loss_fn_train = ImbalNoisedTopK(k=args.topk_k, epsilon=args.topk_epsilon, max_m=args.max_m,
-                                        cls_num_list=dataset_train.cls_num_list, scale=args.topk_scale,
-                                        n_sample=args.topk_n_sample)
-        print(
-            "Using Imbalanced Noised TopK loss, please note that label smoothing and mixup are not implemented in this case.")
-        mixup_fn = None
-    else:
-        # Define loss and optimizer
-        if mixup_fn is not None:
-            # smoothing is handled with mix-up label transform
+        if args.use_bce_loss:
+            loss_fn_train = BinaryCrossEntropy(
+                target_threshold=args.bce_target_thresh,
+                sum_classes=args.bce_sum,
+                pos_weight=args.bce_pos_weight,
+            )
+        else:
             loss_fn_train = SoftTargetCrossEntropy()
-        elif args.smoothing > 0.:
+    elif args.smoothing:
+        if args.bce_loss:
+            loss_fn_train = BinaryCrossEntropy(
+                smoothing=args.smoothing,
+                target_threshold=args.bce_target_thresh,
+                sum_classes=args.bce_sum,
+                pos_weight=args.bce_pos_weight,
+            )
+        else:
             loss_fn_train = LabelSmoothingCrossEntropy(smoothing=args.smoothing)
+    else:
+        if args.use_bce_loss:
+            loss_fn_train = BinaryCrossEntropy(
+                target_threshold=args.bce_target_thresh,
+                sum_classes=args.bce_sum,
+                pos_weight=args.bce_pos_weight,
+            )
         else:
             loss_fn_train = torch.nn.CrossEntropyLoss()
 

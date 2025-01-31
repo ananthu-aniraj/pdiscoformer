@@ -35,10 +35,6 @@ def parse_args():
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--grad_accumulation_steps', default=1, type=int)
 
-    # Class balanced training sampling
-    parser.add_argument('--use_class_balanced_sampling', default=False, action='store_true')
-    parser.add_argument('--num_samples_per_class', default=100, type=int)
-
     # Attention map saving probability
     parser.add_argument('--amap_saving_prob', default=0.05, type=float)
 
@@ -52,10 +48,9 @@ def parse_args():
     parser.add_argument('--crop_pct', type=float, default=None)
 
     # * Mixup params
-    parser.add_argument('--turn_on_mixup_or_cutmix', action='store_true')
-    parser.add_argument('--mixup', type=float, default=0.8,
+    parser.add_argument('--mixup', type=float, default=0.0,
                         help='mixup alpha, mixup enabled if > 0.')
-    parser.add_argument('--cutmix', type=float, default=1.0,
+    parser.add_argument('--cutmix', type=float, default=0.0,
                         help='cutmix alpha, cutmix enabled if > 0.')
     parser.add_argument('--cutmix_minmax', type=float, nargs='+', default=None,
                         help='cutmix min/max ratio, overrides alpha and enables cutmix if set (default: None)')
@@ -70,12 +65,10 @@ def parse_args():
     parser.add_argument('--augmentations_to_use', type=str, default='cub_original',
                         choices=['timm', 'torchvision', 'cub_original'])
     parser.add_argument('--image_size', default=448, type=int)
-    parser.add_argument('--color_jitter', type=float, default=0.1, metavar='PCT',
-                        help='Color jitter factor (default: 0.1)')
+    parser.add_argument('--color_jitter', type=float, default=0.4, metavar='PCT',
+                        help='Color jitter factor (default: 0.4)')
     parser.add_argument('--aa', type=str, default='rand-m9-mstd0.5-inc1', metavar='NAME',
                         help='Use AutoAugment policy. "v0" or "original". " + "(default: rand-m9-mstd0.5-inc1)'),
-    parser.add_argument('--smoothing', type=float, default=0.0,
-                        help='Label smoothing (default: 0.)')
     parser.add_argument('--train_interpolation', type=str, default='bicubic',
                         help='Training interpolation (random, bilinear, bicubic default: "bicubic")')
     parser.add_argument('--imagenet_default_mean_and_std', action='store_false', default=True)
@@ -83,7 +76,7 @@ def parse_args():
     parser.add_argument('--vflip', type=float, default=0., help='Vertical flip probability')
 
     # Random Erase params
-    parser.add_argument('--reprob', type=float, default=0.25, metavar='PCT',
+    parser.add_argument('--reprob', type=float, default=0., metavar='PCT',
                         help='Random erase prob (default: 0.25)')
     parser.add_argument('--remode', type=str, default='pixel',
                         help='Random erase mode (default: "pixel")')
@@ -160,12 +153,19 @@ def parse_args():
     parser.add_argument('--enforced_presence_loss_type', default="enforced_presence", choices=["linear", "log", "mse", "enforced_presence"],
                         type=str)
     parser.add_argument('--pixel_wise_entropy_loss', default=1.0, type=float)
-    parser.add_argument('--use_imbalanced_noised_topk', default=False, action='store_true')
-    parser.add_argument('--topk_k', default=5, type=int)
-    parser.add_argument('--topk_epsilon', default=0.01, type=float)
-    parser.add_argument('--max_m', default=0.2, type=float)
-    parser.add_argument('--topk_scale', default=60, type=int)
-    parser.add_argument('--topk_n_sample', default=5, type=int)
+
+    # BCE Loss (for multi-class classification) from timm
+    parser.add_argument('--use_bce_loss', default=False, action='store_true')
+    parser.add_argument('--bce-sum', action='store_true', default=False,
+                        help='Sum over classes when using BCE loss.')
+    parser.add_argument('--bce-target-thresh', type=float, default=None,
+                        help='Threshold for binarizing softened BCE targets (default: None, disabled).')
+    parser.add_argument('--bce-pos-weight', type=float, default=None,
+                        help='Positive weighting for BCE loss.')
+
+    # Label Smoothing
+    parser.add_argument('--smoothing', type=float, default=0.0,
+                        help='Label smoothing (default: 0.0)')
 
     # Equivariance affine transform params
     parser.add_argument('--degrees', default=90, type=float)
@@ -202,6 +202,16 @@ def parse_args():
     # Array training job
     parser.add_argument('--array_training_job', default=False, action='store_true',
                         help='Whether to run as an array job (i.e. training with multiple random seeds on the same settings)')
+
+    # Model Iterate Averaging Type
+    group = parser.add_argument_group('Model iterate average parameters')
+    group.add_argument('--averaging_type', default='', type=str, help='Type of model iterate averaging to use')
+    group.add_argument('--model-ema-force-cpu', action='store_true', default=False,
+                       help='Force ema to be tracked on CPU, rank=0 node only. Disables EMA validation.')
+    group.add_argument('--model-ema-decay', type=float, default=0.9999,
+                       help='Decay factor for model weights moving average (default in timm: 0.9999)')
+    group.add_argument('--no-model-ema-warmup', action='store_true',
+                       help='Enable warmup for model EMA decay.')
 
     args = parser.parse_args()
     return args

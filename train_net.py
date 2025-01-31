@@ -40,7 +40,7 @@ def pdisco_train_eval():
         model = sync_bn_conversion(model)
 
     # Load the loss function
-    loss_fn, mixup_fn = load_classification_loss(args, dataset_train, num_cls)
+    loss_fn, mixup_fn = load_classification_loss(args, num_cls)
 
     # Load the loss hyperparameters
     loss_hyperparams, eq_affine_transform_params = load_loss_hyper_params(args)
@@ -49,6 +49,12 @@ def pdisco_train_eval():
     param_groups = layer_group_matcher_pdisco(args, model)
     optimizer = build_optimizer(args, param_groups, dataset_train)
     scheduler = build_scheduler(args, optimizer)
+
+    # Load averaging parameters
+    averaging_params = {'type': args.averaging_type, 'decay': args.model_ema_decay,
+                        'use_warmup': not args.no_model_ema_warmup,
+                        'device': 'cpu' if args.model_ema_force_cpu else None}
+
     # Start the timer
     start_time = timer()
 
@@ -77,9 +83,8 @@ def pdisco_train_eval():
                           sub_path_test=args.image_sub_path_test,
                           dataset_name=args.dataset,
                           amap_saving_prob=args.amap_saving_prob,
-                          class_balanced_sampling=args.use_class_balanced_sampling,
-                          num_samples_per_class=args.num_samples_per_class,
                           grad_accumulation_steps=args.grad_accumulation_steps,
+                          averaging_params=averaging_params,
                           )
 
     # End the timer and print out how long it took

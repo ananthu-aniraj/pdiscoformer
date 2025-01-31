@@ -7,6 +7,7 @@ import fsspec
 import numpy as np
 import torch
 from timm.data import Mixup
+from timm.utils.model_ema import ModelEmaV3
 from torch.distributed import destroy_process_group
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data import DataLoader
@@ -14,8 +15,6 @@ from torch.utils.data.distributed import DistributedSampler
 import torchmetrics
 from utils.training_utils.snapshot_class import Snapshot
 from utils.data_utils.reversible_affine_transform import generate_affine_trans_params
-from utils.data_utils.class_balanced_distributed_sampler import ClassBalancedDistributedSampler
-from utils.data_utils.class_balanced_sampler import ClassBalancedRandomSampler
 from utils.training_utils.ddp_utils import ddp_setup, set_seeds
 from utils.visualize_att_maps import VisualizeAttentionMaps
 from utils.training_utils.engine_utils import load_state_dict_pdisco, AverageMeter
@@ -53,9 +52,8 @@ class PDiscoTrainer:
             sub_path_test: str = "",
             dataset_name: str = "",
             amap_saving_prob: float = 0.05,
-            class_balanced_sampling: bool = False,
-            num_samples_per_class: int = 100,
             grad_accumulation_steps: int = 1,
+            averaging_params: Optional[Dict] = None,
     ) -> None:
         self._init_ddp(use_ddp)
         self.num_landmarks = model.num_landmarks
@@ -69,10 +67,7 @@ class PDiscoTrainer:
         self.sub_path_test = sub_path_test
         self.batch_size = batch_size
         self.eval_only = eval_only
-        # Number of samples per class for class balanced sampling
-        self.num_samples_per_class = num_samples_per_class
-        self.train_loader = self._prepare_dataloader(train_dataset, num_workers=num_workers,
-                                                     class_balanced_sampling=class_balanced_sampling)
+        self.train_loader = self._prepare_dataloader(train_dataset, num_workers=num_workers)
         self.test_loader = self._prepare_dataloader(test_dataset, num_workers=num_workers, drop_last=False)
         if len(loss_fn) == 1:
             self.loss_fn_train = self.loss_fn_eval = loss_fn[0]
@@ -125,6 +120,8 @@ class PDiscoTrainer:
         except AttributeError:
             self.scaler = torch.cuda.amp.GradScaler(enabled=(self.amp_dtype == 'float16'))
 
+        self.averaging_params = averaging_params
+
         if os.path.isfile(os.path.join(snapshot_path, f"snapshot_best.pt")):
             print("Loading snapshot")
             self._load_snapshot()
@@ -133,11 +130,16 @@ class PDiscoTrainer:
             self._load_snapshot()
             self.snapshot_path = os.path.dirname(snapshot_path)
             self.is_snapshot_dir = True
-        self.batch_img_metas = None
+
         # Initialize the visualization class
         self.vis_att_maps = VisualizeAttentionMaps(snapshot_dir=self.snapshot_path, sub_path_test=self.sub_path_test,
                                                    dataset_name=self.name_dataset, bg_label=self.num_landmarks,
                                                    batch_size=self.batch_size, num_parts=self.num_landmarks + 1)
+        self.model_ema = None
+        self.averaging_type = averaging_params['type']
+        if self.averaging_type == "ema":
+            self.model_ema = ModelEmaV3(model, decay=averaging_params['decay'], device=averaging_params['device'],
+                                        use_warmup=averaging_params['use_warmup'])
         if self.use_ddp:
             if self.local_rank == 0 and self.global_rank == 0:
                 print(f"Using {self.world_size} GPUs, Broadcast Buffers")
@@ -250,43 +252,22 @@ class PDiscoTrainer:
                                   average="macro").to(self.local_rank,
                                                       non_blocking=True)}
 
-    def _prepare_dataloader_ddp(self, dataset: torch.utils.data.Dataset, num_workers: int = 4,
-                                class_balanced_sampling: bool = False):
-        if class_balanced_sampling:
-            return torch.utils.data.DataLoader(
-                dataset,
-                batch_size=self.batch_size,
-                pin_memory=True,
-                shuffle=False,
-                num_workers=num_workers,
-                drop_last=True,
-                sampler=ClassBalancedDistributedSampler(dataset, num_samples_per_class=self.num_samples_per_class)
-            )
-        else:
-            return torch.utils.data.DataLoader(
-                dataset,
-                batch_size=self.batch_size,
-                pin_memory=True,
-                shuffle=False,
-                num_workers=num_workers,
-                drop_last=True,
-                sampler=DistributedSampler(dataset)
-            )
+    def _prepare_dataloader_ddp(self, dataset: torch.utils.data.Dataset, num_workers: int = 4):
+
+        return torch.utils.data.DataLoader(
+            dataset,
+            batch_size=self.batch_size,
+            pin_memory=True,
+            shuffle=False,
+            num_workers=num_workers,
+            drop_last=True,
+            sampler=DistributedSampler(dataset)
+        )
 
     def _prepare_dataloader(self, dataset: torch.utils.data.Dataset, num_workers: int = 4,
-                            class_balanced_sampling: bool = False, drop_last: bool = True):
+                            drop_last: bool = True):
         if self.use_ddp:
-            return self._prepare_dataloader_ddp(dataset, num_workers, class_balanced_sampling)
-
-        if class_balanced_sampling:
-            return torch.utils.data.DataLoader(
-                dataset,
-                batch_size=self.batch_size,
-                pin_memory=True,
-                shuffle=False,
-                num_workers=num_workers,
-                drop_last=True,
-                sampler=ClassBalancedRandomSampler(dataset, num_samples_per_class=self.num_samples_per_class))
+            return self._prepare_dataloader_ddp(dataset, num_workers)
         else:
             return torch.utils.data.DataLoader(
                 dataset,
@@ -326,7 +307,11 @@ class PDiscoTrainer:
         if train and self.use_ddp:
             self.model.require_backward_grad_sync = ((curr_iter + 1) % self.accum_steps == 0 or curr_iter == len(self.train_loader) - 1)
         with torch.set_grad_enabled(train), torch.amp.autocast(device_type="cuda", dtype=self.pt_dtype):
-            all_features, maps, scores, dis_sim_maps = self.model(source)
+            # Use ema model for evaluation (if available)
+            if not train and self.model_ema is not None and self.averaging_params['device'] != "cpu":
+                all_features, maps, scores, dis_sim_maps = self.model_ema(source)
+            else:
+                all_features, maps, scores, dis_sim_maps = self.model(source)
 
             outputs = scores.mean(dim=-1)  # (batch_size, num_classes)
 
@@ -460,6 +445,8 @@ class PDiscoTrainer:
                 if (it + 1) % self.accum_steps == 0 or it == last_batch_idx:
                     num_updates += 1
                     self.scheduler.step_update(num_updates=num_updates)
+                    if self.model_ema is not None:
+                        self.model_ema.update(self.model, step=num_updates)
             else:
                 for key in losses_dict.keys():
                     self.loss_dict_val[key].update(losses_dict[key], source.size(0))
@@ -494,7 +481,10 @@ class PDiscoTrainer:
 
     def _save_snapshot(self, epoch, save_best: bool = False):
         # capture snapshot
-        model = self.model
+        if self.model_ema is not None:
+            model = self.model_ema.module
+        else:
+            model = self.model
         raw_model = model.module if hasattr(model, "module") else model
         snapshot = Snapshot(
             model_state=raw_model.state_dict(),
@@ -607,9 +597,8 @@ def launch_pdisco_trainer(model: torch.nn.Module,
                           sub_path_test: str = "",
                           dataset_name: str = "",
                           amap_saving_prob: float = 0.05,
-                          class_balanced_sampling: bool = False,
-                          num_samples_per_class: int = 100,
                           grad_accumulation_steps: int = 1,
+                          averaging_params: Optional[Dict] = None,
                           ) -> None:
     """Trains and tests a PyTorch model.
 
@@ -643,9 +632,8 @@ def launch_pdisco_trainer(model: torch.nn.Module,
     sub_path_test: A string indicating the sub path of the test dataset.
     dataset_name: A string indicating the name of the dataset.
     amap_saving_prob: A float indicating the probability of saving attention maps.
-    class_balanced_sampling: A boolean indicating whether to use class-balanced sampling
-    num_samples_per_class: An integer indicating the number of samples per class for class-balanced sampling
     grad_accumulation_steps: An integer indicating the number of steps to accumulate gradients over.
+    averaging_params: A dictionary containing averaging parameters.
     @rtype: None
     """
 
@@ -665,9 +653,7 @@ def launch_pdisco_trainer(model: torch.nn.Module,
                                   eq_affine_transform_params=eq_affine_transform_params, use_ddp=use_ddp,
                                   sub_path_test=sub_path_test, dataset_name=dataset_name,
                                   amap_saving_prob=amap_saving_prob,
-                                  class_balanced_sampling=class_balanced_sampling,
-                                  num_samples_per_class=num_samples_per_class,
-                                  grad_accumulation_steps=grad_accumulation_steps)
+                                  grad_accumulation_steps=grad_accumulation_steps, averaging_params=averaging_params)
     if eval_only:
         model_trainer.test_only()
     else:
