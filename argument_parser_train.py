@@ -112,7 +112,7 @@ def parse_args():
                         choices=['cosine', 'linearlr', 'steplr'],
                         type=str)
     parser.add_argument('--scheduler_warmup_epochs', default=0, type=int)
-    parser.add_argument('--warmup_lr', type=float, default=1e-6)
+    parser.add_argument('--warmup_lr', type=float, default=0.0)
     parser.add_argument('--scheduler_restart_factor', default=1, type=int)
     parser.add_argument('--scheduler_gamma', default=0.1, type=float)
     parser.add_argument('--scheduler_step_size', default=10, type=int)
