@@ -87,7 +87,7 @@ class VisualizeAttentionMaps:
         ims = (ims.permute(0, 2, 3, 1).cpu().numpy() * 255).astype(np.uint8)
         map_argmax = torch.nn.functional.interpolate(maps.clone().detach(), size=self.save_resolution,
                                                      mode='bilinear',
-                                                     align_corners=True).argmax(dim=1).cpu().numpy()
+                                                     align_corners=False, antialias=True).argmax(dim=1).cpu().numpy()
 
         # Select colors for parts which are present
         parts_present = np.unique(map_argmax).tolist()
