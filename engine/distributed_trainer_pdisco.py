@@ -15,7 +15,7 @@ from torch.utils.data.distributed import DistributedSampler
 import torchmetrics
 from utils.training_utils.snapshot_class import Snapshot
 from utils.data_utils.reversible_affine_transform import generate_affine_trans_params
-from utils.training_utils.ddp_utils import ddp_setup, set_seeds
+from utils.training_utils.ddp_utils import ddp_setup, set_seeds, is_main_process, save_on_master, get_state_dict
 from utils.visualize_att_maps import VisualizeAttentionMaps
 from utils.training_utils.engine_utils import load_state_dict_pdisco, AverageMeter
 from utils.wandb_params import init_wandb
@@ -480,20 +480,17 @@ class PDiscoTrainer:
         return losses_dict, accuracies_dict
 
     def _save_snapshot(self, epoch, save_best: bool = False):
-        # capture snapshot
         if self.model_ema is not None:
-            model = self.model_ema.module
+            raw_model = self.model_ema
         else:
-            model = self.model
-        raw_model = model.module if hasattr(model, "module") else model
-        snapshot = Snapshot(
-            model_state=raw_model.state_dict(),
-            optimizer_state=self.optimizer.state_dict(),
-            finished_epoch=epoch,
-            epoch_test_accuracies=self.epoch_test_accuracies,
-        )
+            raw_model = self.model
         # save snapshot
-        snapshot = asdict(snapshot)
+        snapshot = {
+            "model_state": get_state_dict(raw_model),
+            "optimizer_state": self.optimizer.state_dict(),
+            "finished_epoch": epoch,
+            "epoch_test_accuracies": self.epoch_test_accuracies,
+        }
         if self.is_snapshot_dir:
             save_path_base = self.snapshot_path
         else:
@@ -505,8 +502,7 @@ class PDiscoTrainer:
         else:
             save_path = os.path.join(save_path_base, f"snapshot_{epoch}.pt")
 
-        torch.save(snapshot, save_path)
-        print(f"Snapshot saved at epoch {epoch}")
+        save_on_master(snapshot, save_path)
 
     def finish_logging(self):
         for logger in self.loggers:
