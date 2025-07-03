@@ -296,6 +296,7 @@ class PDiscoTrainer:
         if self.eval_only:
             return
         self.optimizer.load_state_dict(snapshot.optimizer_state)
+        self.scaler.load_state_dict(snapshot.scaler_state)
         self.epochs_run = snapshot.finished_epoch
         self.scheduler.step(snapshot.finished_epoch)
         if snapshot.epoch_test_accuracies is not None:
@@ -488,6 +489,7 @@ class PDiscoTrainer:
         snapshot = {
             "model_state": get_state_dict(raw_model),
             "optimizer_state": self.optimizer.state_dict(),
+            "scaler_state": self.scaler.state_dict(),
             "finished_epoch": epoch,
             "epoch_test_accuracies": self.epoch_test_accuracies,
         }
