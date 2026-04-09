@@ -191,8 +191,8 @@ def eval_nmi_ari_part_imagenet(net, data_loader, device):
             part_name_mat_w_bg = F.interpolate(maps, size=inputs.shape[-2:], mode='bilinear', align_corners=False)
 
             pred_parts_loc_w_bg = torch.argmax(part_name_mat_w_bg, dim=1)
-            all_nmi_preds_w_bg.append(pred_parts_loc_w_bg.cpu().numpy())
-            all_nmi_gts.append(landmarks_vec.cpu().numpy())
+            all_nmi_preds_w_bg.append(pred_parts_loc_w_bg.flatten().cpu().numpy())
+            all_nmi_gts.append(landmarks_vec.flatten().cpu().numpy())
 
     nmi_preds = np.concatenate(all_nmi_preds_w_bg, axis=0).flatten()
     nmi_gts = np.concatenate(all_nmi_gts, axis=0).flatten()
@@ -252,11 +252,11 @@ def eval_nmi_ari_cub(net, data_loader, device):
             pred_parts_loc_w_bg = F.grid_sample(part_name_mat_w_bg.float(), points, mode='nearest', align_corners=False)
             pred_parts_loc_w_bg = torch.argmax(pred_parts_loc_w_bg, dim=1).squeeze(2)
             pred_parts_loc_w_bg = pred_parts_loc_w_bg[visible]
-            all_nmi_preds_w_bg.append(pred_parts_loc_w_bg.cpu().numpy())
+            all_nmi_preds_w_bg.append(pred_parts_loc_w_bg.flatten().cpu().numpy())
 
             gt_parts_loc = torch.arange(landmarks_full.shape[1]).unsqueeze(0).repeat(landmarks_full.shape[0], 1).to(device, non_blocking=True)
             gt_parts_loc = gt_parts_loc[visible]
-            all_nmi_gts.append(gt_parts_loc.cpu().numpy())
+            all_nmi_gts.append(gt_parts_loc.flatten().cpu().numpy())
 
     nmi_preds = np.concatenate(all_nmi_preds_w_bg, axis=0)
     nmi_gts = np.concatenate(all_nmi_gts, axis=0)
