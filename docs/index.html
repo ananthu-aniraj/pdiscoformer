@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Project page for 'PDiscoFormer: Relaxing Part Discovery Constraints with Vision Transformers', ECCV 2024 Oral.">
+  <meta name="keywords"
+        content="PDiscoFormer, unsupervised part discovery, vision transformers, DINOv2, fine-grained classification, total variation, ECCV 2024">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PDiscoFormer: Relaxing Part Discovery Constraints with Vision Transformers | ECCV 2024 (Oral)</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <!-- Bulma & Icons -->
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧩</text></svg>">
+
+  <style>
+    .section {
+      padding: 2rem 1.5rem !important;
+    }
+
+    .publication-title {
+      font-family: 'Google Sans', sans-serif;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 0.75rem !important;
+    }
+
+    .publication-venue {
+      margin: 0.5rem auto 1rem auto;
+    }
+
+    .venue-tag {
+      background-color: #ffe08a;
+      color: #946c00;
+      font-weight: 700;
+      border-radius: 9999px;
+      padding: 0.35rem 1rem;
+      display: inline-block;
+      font-size: 1.05rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    .author-block {
+      font-size: 1.15rem;
+      margin: 0 0.35rem;
+    }
+
+    .author-block a {
+      color: #3273dc !important;
+      font-weight: 500;
+    }
+
+    .author-block a:hover {
+      text-decoration: underline;
+    }
+
+    .affiliations {
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .publication-links {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .publication-links .button {
+      margin: 0.25rem 0.2rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      transition: all 0.2s ease-in-out;
+    }
+
+    .publication-links .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .paper-figure {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      border-radius: 6px;
+    }
+
+    .figure-caption {
+      text-align: justify;
+      margin-top: 0.75rem;
+      font-size: 0.92rem;
+      color: #4a4a4a;
+      line-height: 1.45;
+    }
+
+    .equation-block {
+      overflow-x: auto;
+      margin: 1.2rem 0;
+      padding: 0.85rem 0.5rem;
+      text-align: center;
+      background: #fafafa;
+      border-radius: 6px;
+      border: 1px solid #f0f0f0;
+    }
+
+    .equation-block mjx-container {
+      min-width: max-content;
+      margin: 0 !important;
+    }
+
+    /* Comparison tables */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .styled-table th {
+      background-color: #f5f5f5;
+      color: #363636;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-top: 2px solid #363636;
+      border-bottom: 1px solid #dbdbdb;
+    }
+
+    .styled-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .styled-table tbody tr:hover {
+      background-color: #f9fbfd;
+    }
+
+    .styled-table tr.highlight-row {
+      background-color: #edf5ff;
+      font-weight: 600;
+    }
+
+    .best-val {
+      font-weight: 700;
+      color: #1a56db;
+    }
+
+    /* Qualitative Tabs */
+    .tabs ul {
+      border-bottom: 2px solid #e0e0e0;
+      margin-bottom: 1.25rem;
+      justify-content: center;
+    }
+
+    .tabs li a {
+      font-weight: 600;
+      border-bottom-width: 2px;
+      padding: 0.6rem 1.2rem;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.is-active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .qual-grid {
+      display: grid;
+      gap: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .qual-grid-row {
+      display: grid;
+      grid-template-columns: 90px repeat(auto-fit, minmax(0, 1fr));
+      gap: 5px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .qual-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #4a4a4a;
+      text-align: right;
+      padding-right: 8px;
+    }
+
+    .qual-grid-row img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+      display: block;
+      border: 1px solid #e8e8e8;
+    }
+
+    /* Bibtex Box */
+    .bibtex-wrapper {
+      position: relative;
+    }
+
+    .copy-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .copy-button:hover {
+      background: #fff;
+      border-color: #888;
+    }
+
+    .copy-button.copied {
+      background: #48c78e;
+      color: white;
+      border-color: #48c78e;
+    }
+
+    pre code {
+      font-size: 0.86rem;
+      border-radius: 6px;
+      background-color: #282c34 !important;
+      color: #abb2bf !important;
+      display: block;
+      padding: 1.25rem !important;
+      overflow-x: auto;
+    }
+
+    .hero.is-light {
+      background-color: #fbfbfb;
+      border-top: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+  </style>
+
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        macros: {
+          vv: '\\mathbf{v}',
+          mathds: ['\\mathbb{#1}', 1]
+        }
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+  <!-- HERO HEADER -->
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            
+            <h1 class="title is-1 publication-title">
+              PDiscoFormer: Relaxing Part Discovery Constraints with Vision Transformers
+            </h1>
+
+            <div class="publication-venue">
+              <span class="venue-tag">
+                <i class="fas fa-award mr-1"></i> ECCV 2024 Oral Presentation
+              </span>
+            </div>
+
+            <div class="publication-authors">
+              <span class="author-block">
+                <a href="https://ananthu-aniraj.github.io/" target="_blank">Ananthu Aniraj</a><sup>1</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://cassiofragadantas.github.io/" target="_blank">Cassio F. Dantas</a><sup>2</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://scholar.google.com/citations?user=C8zfH3kAAAAJ" target="_blank">Dino Ienco</a><sup>2</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://scholar.google.com/citations?user=IUqydU0AAAAJ" target="_blank">Diego Marcos</a><sup>1</sup>
+              </span>
+            </div>
+
+            <div class="affiliations">
+              <div><sup>1</sup> Inria, Univ Montpellier, CNRS, LIRMM, UMR TETIS, Montpellier, France</div>
+              <div><sup>2</sup> Inria, INRAE, Univ Montpellier, UMR TETIS, Montpellier, France</div>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                
+                <!-- Paper PDF -->
+                <span class="link-block">
+                  <a href="./static/pdfs/pdiscoformer_eccv2024.pdf" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                    <span>Paper (PDF)</span>
+                  </a>
+                </span>
+
+                <!-- Supplementary PDF -->
+                <span class="link-block">
+                  <a href="./static/pdfs/pdiscoformer_eccv2024_supp.pdf" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-paperclip"></i></span>
+                    <span>Supplementary</span>
+                  </a>
+                </span>
+
+                <!-- arXiv Link -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/2407.04538" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="ai ai-arxiv"></i></span>
+                    <span>arXiv</span>
+                  </a>
+                </span>
+
+                <!-- Code Link -->
+                <span class="link-block">
+                  <a href="https://github.com/ananthu-aniraj/pdiscoformer" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fab fa-github"></i></span>
+                    <span>Code</span>
+                  </a>
+                </span>
+
+                <!-- ECCV Oral Link -->
+                <span class="link-block">
+                  <a href="https://eccv.ecva.net/virtual/2024/oral/125" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-video"></i></span>
+                    <span>ECCV Oral</span>
+                  </a>
+                </span>
+
+                <!-- HuggingFace Space Demo -->
+                <span class="link-block">
+                  <a href="https://huggingface.co/spaces/ananthu-aniraj/pdiscoformer" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><span style="font-size: 1.1em;">🤗</span></span>
+                    <span>Live Demo</span>
+                  </a>
+                </span>
+
+                <!-- HuggingFace Paper Page -->
+                <span class="link-block">
+                  <a href="https://huggingface.co/papers/2407.04538" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-file-alt"></i></span>
+                    <span>HF Paper</span>
+                  </a>
+                </span>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEASER / MOTIVATION -->
+  <section class="hero is-light is-small" id="teaser">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column is-four-fifths">
+            <h2 class="title is-3 has-text-centered">Concentration vs. Total Variation as Part Priors</h2>
+            <figure>
+              <img class="paper-figure"
+                   src="./static/images/teaser.png"
+                   alt="Comparison of concentration prior versus total variation prior for part discovery">
+              <figcaption class="figure-caption">
+                <strong>Figure 1:</strong> <strong>Concentration vs. total variation as part priors.</strong> 
+                (Left) Prior methods like PDiscoNet enforce compact, single-component parts around a centroid. 
+                (Right) <strong>PDiscoFormer</strong> leverages self-supervised Vision Transformers (DINOv2) to relax these rigid constraints using a 
+                <strong>Total Variation (TV)</strong> prior, allowing parts to form arbitrary shapes and multiple connected components (e.g. wings, legs, head, flower petals) while preserving spatial smoothness.
+              </figcaption>
+            </figure>
+
+            <div class="columns is-centered mt-4">
+              <div class="column is-half">
+                <div class="box" style="height: 100%; background: #ffffff; border: 1px solid #e2e8f0;">
+                  <h4 class="title is-5 has-text-centered mb-2" style="color: #c53030;">
+                    <i class="fas fa-compress-arrows-alt mr-1"></i> Concentration Prior (Previous Work)
+                  </h4>
+                  <div class="equation-block" style="padding: 0.5rem; margin: 0.5rem 0;">
+                    \[
+                    \mathcal{L}_\text{conc} = \frac{\sum_{k=1}^K \sigma_v^2(\mathbf{A}^k) + \sigma_h^2(\mathbf{A}^k)}{K}
+                    \]
+                  </div>
+                  <p class="is-size-7 has-text-justified mb-2">
+                    where \(\sigma_v^2(\mathbf{A}^k)\) and \(\sigma_h^2(\mathbf{A}^k)\) represent the vertical and horizontal spatial variance over the attention maps.
+                  </p>
+                  <p class="is-size-7 has-text-grey">
+                    <em>Limitation:</em> Fails on disconnected components (e.g., pairs of wings/limbs) or elongated, irregular shapes (e.g., snakes).
+                  </p>
+                </div>
+              </div>
+
+              <div class="column is-half">
+                <div class="box" style="height: 100%; background: #ffffff; border: 1px solid #e2e8f0;">
+                  <h4 class="title is-5 has-text-centered mb-2" style="color: #2b6cb0;">
+                    <i class="fas fa-shapes mr-1"></i> Total Variation Prior (PDiscoFormer)
+                  </h4>
+                  <p class="is-size-7 has-text-justified mb-2">
+                    Penalizes only spatial gradients / boundary roughness, allowing multiple connected components of arbitrary shape and size:
+                  </p>
+                  <div class="equation-block" style="padding: 0.5rem; margin: 0.5rem 0;">
+                    \[
+                    \mathcal{L}_{\text{tv}} = \frac{1}{HW} \sum_{k=1}^{K+1} \sum_{i,j} \left| \nabla a_{ij}^k \right|
+                    \]
+                  </div>
+                  <p class="is-size-7 has-text-grey">
+                    <em>Advantage:</em> Unlocks natural, multi-component semantic parts while maintaining smooth, coherent segmentations.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABSTRACT -->
+  <section class="section" id="abstract">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Computer vision methods that explicitly detect object parts and reason on them are a step towards inherently interpretable models. Existing approaches that perform part discovery driven by a fine-grained classification task make very restrictive assumptions on the geometric properties of the discovered parts; they should be small and compact. Although this prior is useful in some cases, in this paper we show that pre-trained transformer-based vision models, such as self-supervised DINOv2 ViT, enable the relaxation of these constraints.
+            </p>
+            <p>
+              In particular, we find that a <strong>total variation (TV) prior</strong>, which allows for multiple connected components of any size, substantially outperforms previous work. We test our approach on three fine-grained classification benchmarks: <strong>CUB</strong>, <strong>PartImageNet</strong>, and <strong>Oxford Flowers</strong>, and compare our results to previously published methods as well as a re-implementation of the state-of-the-art method PDiscoNet with a transformer-based backbone. We consistently obtain substantial improvements across the board, both on part discovery metrics and the downstream classification task, showing that the strong inductive biases in self-supervised ViT models require rethinking the geometric priors used for unsupervised part discovery.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- METHOD & ARCHITECTURE -->
+  <section class="section" id="method">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3 has-text-centered">Methodology & Architecture</h2>
+          
+          <figure>
+            <img class="paper-figure"
+                 src="./static/images/architecture.png"
+                 alt="PDiscoFormer model architecture diagram">
+            <figcaption class="figure-caption">
+              <strong>Figure 2: Overview of PDiscoFormer Architecture.</strong> 
+              Given an input image \(\mathbf{x}\), patch tokens are extracted using a DINOv2 ViT backbone (with register tokens). 
+              Negative squared Euclidean distances to learnable prototypes \(\mathbf{p}^k\) followed by Gumbel-Softmax generate \(K\) foreground attention maps and 1 background map. 
+              The attention maps weight-average the features into part embeddings \(\mathbf{v}^k\), which are modulated by per-part Layer Normalization and passed to a linear classifier with part dropout. 
+              The training objective synergizes classification with total variation, entropy, presence, background boundary mask, and equivariance losses.
+            </figcaption>
+          </figure>
+
+          <div class="content has-text-justified mt-5">
+            <h3 class="title is-4">1. Prototype Attention Maps via Gumbel-Softmax</h3>
+            <p>
+              Given patch features \(\mathbf{z} \in \mathbb{R}^{D \times H \times W}\) from a pre-trained ViT, we compute attention maps \(\mathbf{A} \in [0, 1]^{(K+1) \times H \times W}\) representing \(K\) foreground parts and a background channel. Attention probabilities are computed by comparing patch tokens \(\mathbf{z}_{ij}\) with learnable prototypes \(\mathbf{p}^k\), sampled through a Gumbel-Softmax:
+            </p>
+            <div class="equation-block">
+              \[
+              a_{ij}^k = \frac{\exp\left(-\| \mathbf{z}_{ij} - \mathbf{p}^k\|^2 + \gamma_k \right)}{\sum_{l=1}^{K+1} \exp\left(-\| \mathbf{z}_{ij} - \mathbf{p}^l\|^2 + \gamma_l\right)}
+              \]
+            </div>
+            <p>
+              where \(\gamma_k \sim \text{Gumbel}(0, 1)\). Part embedding vectors \(\mathbf{v}^k\) are then obtained by weighted average pooling of features \(\mathbf{z}\) over each attention map \(A^k\).
+            </p>
+
+            <h3 class="title is-4">2. Part Modulation & Dropout</h3>
+            <p>
+              Each part vector \(\mathbf{v}^k\) is modulated with a dedicated per-part Layer Normalization:
+            </p>
+            <div class="equation-block">
+              \[
+              \mathbf{v}_m^k = \frac{\mathbf{v}^k - \mathbb{E}[\mathbf{v}^k]}{\sqrt{\text{Var}[\mathbf{v}^k] + \epsilon}} \odot \mathbf{w}_m^k + \mathbf{b}_m^k
+              \]
+            </div>
+            <p>
+              During training, entire part embedding vectors are randomly dropped (Part Dropout). This forces each individual part to be discriminative for the fine-grained classification task rather than relying on a single dominant part.
+            </p>
+
+            <h3 class="title is-4">3. Rethinking Geometric Part Priors: From Concentration to Total Variation</h3>
+            <p>
+              Previous weakly-supervised part discovery approaches (such as PDiscoNet, van der Klis et al.) enforce compactness on the learned attention maps \(\mathbf{A}^k\) through a <strong>concentration loss</strong> \(\mathcal{L}_{\text{conc}}\):
+            </p>
+            <div class="equation-block">
+              \[
+              \mathcal{L}_\text{conc} = \frac{\sum_{k=1}^K \sigma_v^2(\mathbf{A}^k) + \sigma_h^2(\mathbf{A}^k)}{K}
+              \]
+            </div>
+            <p>
+              where \(\sigma_v\) and \(\sigma_h\) denote the vertical and horizontal spatial variance respectively over the attention maps, computed with respect to the part centroid \((c_v^k, c_h^k)\):
+            </p>
+            <div class="equation-block">
+              \[
+              c_v^k = \frac{\sum_{i,j} i \cdot a_{ij}^k}{\sum_{i,j} a_{ij}^k}, \qquad 
+              c_h^k = \frac{\sum_{i,j} j \cdot a_{ij}^k}{\sum_{i,j} a_{ij}^k}
+              \]
+            </div>
+            <div class="equation-block">
+              \[
+              \sigma_v^2(\mathbf{A}^k) = \sum_{i,j} a_{ij}^k \left( \frac{i - c_v^k}{H} \right)^2, \qquad
+              \sigma_h^2(\mathbf{A}^k) = \sum_{i,j} a_{ij}^k \left( \frac{j - c_h^k}{W} \right)^2
+              \]
+            </div>
+            <p>
+              While \(\mathcal{L}_{\text{conc}}\) was essential for CNN backbones to avoid degenerate solutions, penalizing spatial variance strictly constrains discovered parts to be compact and unimodal. As a result, it fundamentally struggles with:
+            </p>
+            <ul>
+              <li><strong>Multi-component parts:</strong> Natural parts that are spatially separated (e.g., both wings of a bird, pairs of quadruped legs, disconnected flower petals).</li>
+              <li><strong>Irregular and elongated geometries:</strong> Non-compact structures such as snake bodies, stems, or animal tails.</li>
+            </ul>
+            <p>
+              Because self-supervised Vision Transformers (such as DINOv2) already encode strong patch-level semantic grouping, <strong>PDiscoFormer</strong> relaxes this rigid centroid constraint by replacing \(\mathcal{L}_{\text{conc}}\) with a <strong>Total Variation</strong> prior:
+            </p>
+            <ul>
+              <li>
+                <strong>Total Variation Loss (\(\mathcal{L}_{\text{tv}}\)):</strong>
+                Penalizes spatial gradients of attention maps to favor piece-wise constant, spatially connected regions without restricting shape, elongation, or number of connected components:
+                <div class="equation-block">
+                  \[
+                  \mathcal{L}_{\text{tv}} = \frac{1}{HW} \sum_{k=1}^{K+1} \sum_{ij} \left| \nabla a_{ij}^k \right|
+                  \]
+                </div>
+              </li>
+              <li>
+                <strong>Entropy Loss (\(\mathcal{L}_{\text{ent}}\)):</strong>
+                Encourages crisp assignment of each patch to a single part prototype:
+                <div class="equation-block">
+                  \[
+                  \mathcal{L}_{\text{ent}} = \frac{-1}{K+1}\sum_{k=1}^{K+1}\sum_{ij} a_{ij}^k \log\left(a_{ij}^k\right)
+                  \]
+                </div>
+              </li>
+              <li>
+                <strong>Background Presence Loss (\(\mathcal{L}_{\text{p}_0}\)):</strong>
+                Enforces the background channel to be present in every image, prioritized near image boundaries via a soft spatial border mask \(m_{ij}\):
+                <div class="equation-block">
+                  \[
+                  \mathcal{L}_{\text{p}_0} = -\frac{1}{B}\sum_b \log\left(\max_{i,j} m_{ij} \bar{a}_{ij}^{K+1}(\mathbf{x}_b)\right)
+                  \]
+                </div>
+              </li>
+              <li>
+                <strong>Orthogonality (\(\mathcal{L}_{\perp}\)) & Equivariance (\(\mathcal{L}_{\text{eq}}\)):</strong>
+                Ensure that different part embedding vectors are decorrelated, and that predicted part maps transform equivariantly under rigid affine augmentations.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUANTITATIVE BENCHMARKS -->
+  <section class="section" id="results">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3 has-text-centered">Quantitative Benchmarks</h2>
+          <div class="content has-text-justified">
+            <p>
+              PDiscoFormer is evaluated across three diverse fine-grained benchmarks: <strong>CUB-200-2011</strong> (birds with compact parts), <strong>PartImageNet OOD</strong> (158 classes across 11 super-classes with complex non-compact parts), and <strong>Oxford 102 Flowers</strong> (multi-instance flower petals).
+            </p>
+          </div>
+
+          <!-- Main Results Table -->
+          <div class="table-container">
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th rowspan="2">Method</th>
+                  <th colspan="4">CUB (%)</th>
+                  <th colspan="3">PartImageNet OOD (%)</th>
+                  <th colspan="2">Oxford Flowers (%)</th>
+                </tr>
+                <tr>
+                  <th>\(K\)</th>
+                  <th>Kp \(\downarrow\)</th>
+                  <th>NMI \(\uparrow\)</th>
+                  <th>ARI \(\uparrow\)</th>
+                  <th>Top-1 \(\uparrow\)</th>
+                  <th>NMI \(\uparrow\)</th>
+                  <th>ARI \(\uparrow\)</th>
+                  <th>Fg. mIoU \(\uparrow\)</th>
+                  <th>Top-1 \(\uparrow\)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>DINO (Amir et al.)*</td>
+                  <td>16 / 50 / 8</td>
+                  <td>-</td>
+                  <td>50.57</td>
+                  <td>26.14</td>
+                  <td>-</td>
+                  <td>37.81</td>
+                  <td>16.50</td>
+                  <td>54.44</td>
+                  <td>-</td>
+                </tr>
+                <tr>
+                  <td>Huang et al.</td>
+                  <td>16 / 50 / 8</td>
+                  <td>12.60</td>
+                  <td>43.92</td>
+                  <td>21.10</td>
+                  <td>85.93</td>
+                  <td>10.19</td>
+                  <td>1.05</td>
+                  <td>17.26</td>
+                  <td>92.86</td>
+                </tr>
+                <tr>
+                  <td>PDiscoNet (ResNet)</td>
+                  <td>16 / 50 / 8</td>
+                  <td>7.67</td>
+                  <td>56.87</td>
+                  <td>38.05</td>
+                  <td>87.49</td>
+                  <td>41.49</td>
+                  <td>14.17</td>
+                  <td>49.10</td>
+                  <td>81.04</td>
+                </tr>
+                <tr>
+                  <td>PDiscoNet + ViT-B</td>
+                  <td>16 / 50 / 8</td>
+                  <td>5.95</td>
+                  <td>68.63</td>
+                  <td>43.41</td>
+                  <td>84.04</td>
+                  <td>29.48</td>
+                  <td>27.80</td>
+                  <td>13.18</td>
+                  <td>97.40</td>
+                </tr>
+                <tr class="highlight-row">
+                  <td><strong>PDiscoFormer (Ours)</strong></td>
+                  <td>16 / 50 / 8</td>
+                  <td><span class="best-val">5.74</span></td>
+                  <td><span class="best-val">73.38</span></td>
+                  <td><span class="best-val">55.83</span></td>
+                  <td><span class="best-val">88.72</span></td>
+                  <td><span class="best-val">46.29</span></td>
+                  <td><span class="best-val">62.21</span></td>
+                  <td><span class="best-val">69.59</span></td>
+                  <td><span class="best-val">99.64</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="is-size-7 has-text-grey mt-1">
+              * DINO uses no class supervision. For Flowers, \(K=2\) achieves <span class="best-val">73.62%</span> Fg. mIoU for PDiscoFormer compared to 4.92% for PDiscoNet+ViT and 19.04% for PDiscoNet.
+            </p>
+          </div>
+
+          <!-- Ablation Study Table -->
+          <h3 class="title is-4 mt-6">Ablation Study</h3>
+          <div class="content has-text-justified">
+            <p>
+              Ablating individual loss components confirms that every proposed component contributes crucially to part discovery and classification:
+            </p>
+          </div>
+
+          <div class="table-container">
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th rowspan="2">Ablation Variant</th>
+                  <th colspan="3">PartImageNet OOD (\(K=25\))</th>
+                  <th colspan="4">CUB (\(K=16\))</th>
+                </tr>
+                <tr>
+                  <th>NMI \(\uparrow\)</th>
+                  <th>ARI \(\uparrow\)</th>
+                  <th>Top-1 \(\uparrow\)</th>
+                  <th>Kp \(\downarrow\)</th>
+                  <th>NMI \(\uparrow\)</th>
+                  <th>ARI \(\uparrow\)</th>
+                  <th>Top-1 \(\uparrow\)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="highlight-row">
+                  <td><strong>Full PDiscoFormer</strong></td>
+                  <td><span class="best-val">44.71</span></td>
+                  <td><span class="best-val">59.27</span></td>
+                  <td>90.77</td>
+                  <td>5.74</td>
+                  <td><span class="best-val">73.38</span></td>
+                  <td><span class="best-val">55.83</span></td>
+                  <td>88.72</td>
+                </tr>
+                <tr>
+                  <td>No \(\mathcal{L}_{\text{tv}}\) (Total Variation)</td>
+                  <td>33.73</td>
+                  <td>25.35</td>
+                  <td>90.47</td>
+                  <td>6.01</td>
+                  <td>70.78</td>
+                  <td>51.83</td>
+                  <td>80.22</td>
+                </tr>
+                <tr>
+                  <td>No \(\mathcal{L}_{\text{ent}}\) (Entropy)</td>
+                  <td>39.16</td>
+                  <td>54.46</td>
+                  <td><span class="best-val">91.19</span></td>
+                  <td><span class="best-val">5.57</span></td>
+                  <td>66.88</td>
+                  <td>45.68</td>
+                  <td>88.21</td>
+                </tr>
+                <tr>
+                  <td>No \(\mathcal{L}_{\text{p}_0}\) (Background Presence)</td>
+                  <td>41.05</td>
+                  <td>49.08</td>
+                  <td>89.81</td>
+                  <td>5.85</td>
+                  <td>68.66</td>
+                  <td>43.09</td>
+                  <td>83.64</td>
+                </tr>
+                <tr>
+                  <td>No \(\mathcal{L}_{\text{p}_1}\) (Foreground Presence)</td>
+                  <td>33.98</td>
+                  <td>58.31</td>
+                  <td>91.07</td>
+                  <td>7.14</td>
+                  <td>61.04</td>
+                  <td>34.28</td>
+                  <td><span class="best-val">89.04</span></td>
+                </tr>
+                <tr>
+                  <td>No \(\mathcal{L}_{\text{eq}}\) (Equivariance)</td>
+                  <td>43.38</td>
+                  <td>54.19</td>
+                  <td>90.47</td>
+                  <td>9.05</td>
+                  <td>56.85</td>
+                  <td>30.63</td>
+                  <td>83.71</td>
+                </tr>
+                <tr>
+                  <td>No Per-Part LayerNorm</td>
+                  <td>31.14</td>
+                  <td>40.73</td>
+                  <td>89.69</td>
+                  <td>5.74</td>
+                  <td>70.70</td>
+                  <td>50.62</td>
+                  <td>69.73</td>
+                </tr>
+                <tr>
+                  <td>No Part Dropout</td>
+                  <td>33.08</td>
+                  <td>43.98</td>
+                  <td>89.99</td>
+                  <td>6.08</td>
+                  <td>70.28</td>
+                  <td>41.69</td>
+                  <td>87.14</td>
+                </tr>
+                <tr>
+                  <td>No Gumbel-Softmax</td>
+                  <td>32.98</td>
+                  <td>54.68</td>
+                  <td>90.71</td>
+                  <td>6.44</td>
+                  <td>68.92</td>
+                  <td>43.61</td>
+                  <td>86.43</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Entropy Analysis Plots -->
+          <h3 class="title is-4 mt-6">Entropy Analysis</h3>
+          <div class="content has-text-justified">
+            <p>
+              Analyzing the entropy of learned part attention maps shows that PDiscoFormer yields significantly sharper, less ambiguous assignments across all foreground and background regions compared to baselines.
+            </p>
+          </div>
+          <div class="columns is-centered">
+            <div class="column is-half">
+              <figure>
+                <img class="paper-figure" src="./static/images/entropy_cub.png" alt="Entropy on CUB">
+                <figcaption class="figure-caption has-text-centered">
+                  <strong>CUB Dataset:</strong> Lower entropy indicates cleaner, more confident part boundaries.
+                </figcaption>
+              </figure>
+            </div>
+            <div class="column is-half">
+              <figure>
+                <img class="paper-figure" src="./static/images/entropy_partimagenet.png" alt="Entropy on PartImageNet">
+                <figcaption class="figure-caption has-text-centered">
+                  <strong>PartImageNet OOD:</strong> PDiscoFormer consistently achieves minimal entropy across parts.
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUALITATIVE RESULTS GALLERY -->
+  <section class="hero is-light is-small" id="qualitative">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column is-four-fifths">
+            <h2 class="title is-3 has-text-centered">Qualitative Results</h2>
+            <div class="content has-text-justified">
+              <p>
+                Visual comparison of discovered part segmentations across different datasets. Notice how PDiscoFormer successfully segments irregular parts (e.g. bird wings, elongated snake bodies, quadruped limbs, flower petals) without breaking them into arbitrary compact blobs.
+              </p>
+            </div>
+
+            <!-- TABS -->
+            <div class="tabs is-boxed is-centered">
+              <ul>
+                <li class="is-active" data-tab="tab-cub"><a><i class="fas fa-dove mr-2"></i> CUB Birds (\(K=8\))</a></li>
+                <li data-tab="tab-snakes"><a><i class="fas fa-worm mr-2"></i> PartImageNet: Snakes</a></li>
+                <li data-tab="tab-quadrupeds"><a><i class="fas fa-paw mr-2"></i> PartImageNet: Quadrupeds</a></li>
+                <li data-tab="tab-flowers"><a><i class="fas fa-seedling mr-2"></i> Oxford Flowers (\(K=2\))</a></li>
+              </ul>
+            </div>
+
+            <!-- TAB 1: CUB -->
+            <div id="tab-cub" class="tab-content is-active">
+              <div class="qual-grid">
+                <div class="qual-grid-row">
+                  <div class="qual-label">Input</div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/cub/image_0_0_American_Redstart_0064_103081.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/cub/image_0_0_Brandt_Cormorant_0052_23356.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/cub/image_0_0_Red_Faced_Cormorant_0025_796306.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/cub/image_0_0_Red_Winged_Blackbird_0089_4188.jpg" alt="Input"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label">PDiscoNet (ResNet)</div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/cub/8_parts/0_0_American_Redstart_0064_103081.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/cub/8_parts/0_0_Brandt_Cormorant_0052_23356.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/cub/8_parts/0_0_Red_Faced_Cormorant_0025_796306.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/cub/8_parts/0_0_Red_Winged_Blackbird_0089_4188.jpg" alt="PDiscoNet"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label">PDiscoNet (ViT-B)</div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/cub/8_parts/0_0_American_Redstart_0064_103081.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/cub/8_parts/0_0_Brandt_Cormorant_0052_23356.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/cub/8_parts/0_0_Red_Faced_Cormorant_0025_796306.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/cub/8_parts/0_0_Red_Winged_Blackbird_0089_4188.jpg" alt="PDiscoNet ViT"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label" style="color: #1a56db;">PDiscoFormer (Ours)</div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/cub/8_parts/0_0_American_Redstart_0064_103081.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/cub/8_parts/0_0_Brandt_Cormorant_0052_23356.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/cub/8_parts/0_0_Red_Faced_Cormorant_0025_796306.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/cub/8_parts/0_0_Red_Winged_Blackbird_0089_4188.jpg" alt="Ours"></div>
+                </div>
+              </div>
+              <p class="is-size-7 has-text-centered has-text-grey">
+                Discovered parts on CUB (\(K=8\)). PDiscoFormer naturally captures full wings, heads, tails, and torsos consistently across poses.
+              </p>
+            </div>
+
+            <!-- TAB 2: SNAKES -->
+            <div id="tab-snakes" class="tab-content">
+              <div class="qual-grid">
+                <div class="qual-grid-row">
+                  <div class="qual-label">Input</div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/partimagenet/Snake/image_0_143_part_imagenet_ood.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/partimagenet/Snake/image_0_31_part_imagenet_ood.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/partimagenet/Snake/image_0_54_part_imagenet_ood.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/partimagenet/Snake/image_0_7_part_imagenet_ood.jpg" alt="Input"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label">PDiscoNet (ResNet)</div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/partimagenet/Snake/8_parts/0_143_part_imagenet_ood.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/partimagenet/Snake/8_parts/0_31_part_imagenet_ood.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/partimagenet/Snake/8_parts/0_54_part_imagenet_ood.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/partimagenet/Snake/8_parts/0_7_part_imagenet_ood.jpg" alt="PDiscoNet"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label">PDiscoNet (ViT-B)</div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/partimagenet/Snake/8_parts/0_143_part_imagenet_ood.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/partimagenet/Snake/8_parts/0_31_part_imagenet_ood.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/partimagenet/Snake/8_parts/0_54_part_imagenet_ood.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/partimagenet/Snake/8_parts/0_7_part_imagenet_ood.jpg" alt="PDiscoNet ViT"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label" style="color: #1a56db;">PDiscoFormer (Ours)</div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/part_imagenet/Snake/8_parts/0_143_part_imagenet_ood.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/part_imagenet/Snake/8_parts/0_31_part_imagenet_ood.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/part_imagenet/Snake/8_parts/0_54_part_imagenet_ood.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/part_imagenet/Snake/8_parts/0_7_part_imagenet_ood.jpg" alt="Ours"></div>
+                </div>
+              </div>
+              <p class="is-size-7 has-text-centered has-text-grey">
+                Discovered parts on PartImageNet Snake super-class. PDiscoFormer adheres to curved, elongated bodies without arbitrary circular fragmentation.
+              </p>
+            </div>
+
+            <!-- TAB 3: QUADRUPEDS -->
+            <div id="tab-quadrupeds" class="tab-content">
+              <div class="qual-grid">
+                <div class="qual-grid-row">
+                  <div class="qual-label">Input</div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/partimagenet/Quadruped/image_0_29_part_imagenet_ood.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/partimagenet/Quadruped/image_0_31_part_imagenet_ood.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/partimagenet/Quadruped/image_0_36_part_imagenet_ood.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/partimagenet/Quadruped/image_0_41_part_imagenet_ood.jpg" alt="Input"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label">PDiscoNet (ResNet)</div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/partimagenet/Quadruped/0_29_part_imagenet_ood.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/partimagenet/Quadruped/0_31_part_imagenet_ood.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/partimagenet/Quadruped/0_36_part_imagenet_ood.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/partimagenet/Quadruped/0_41_part_imagenet_ood.jpg" alt="PDiscoNet"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label">PDiscoNet (ViT-B)</div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/partimagenet/Quadruped/0_29_part_imagenet_ood.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/partimagenet/Quadruped/0_31_part_imagenet_ood.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/partimagenet/Quadruped/0_36_part_imagenet_ood.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/partimagenet/Quadruped/0_41_part_imagenet_ood.jpg" alt="PDiscoNet ViT"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label" style="color: #1a56db;">PDiscoFormer (Ours)</div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/part_imagenet/Quadruped/0_29_part_imagenet_ood.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/part_imagenet/Quadruped/0_31_part_imagenet_ood.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/part_imagenet/Quadruped/0_36_part_imagenet_ood.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/part_imagenet/Quadruped/0_41_part_imagenet_ood.jpg" alt="Ours"></div>
+                </div>
+              </div>
+              <p class="is-size-7 has-text-centered has-text-grey">
+                Discovered parts on PartImageNet Quadruped super-class. Legs, torsos, and heads are distinctly and coherently segmented.
+              </p>
+            </div>
+
+            <!-- TAB 4: FLOWERS -->
+            <div id="tab-flowers" class="tab-content">
+              <div class="qual-grid">
+                <div class="qual-grid-row">
+                  <div class="qual-label">Input</div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/flowers/image_0_0_image_00412.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/flowers/image_0_0_image_02190.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/flowers/image_0_0_image_02296.jpg" alt="Input"></div>
+                  <div><img src="./static/images/qualitative_analysis/input_images/flowers/image_0_0_image_04744.jpg" alt="Input"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label">PDiscoNet (ResNet)</div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/flowers/2_parts/0_0_image_00412.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/flowers/2_parts/0_0_image_02190.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/flowers/2_parts/0_0_image_02296.jpg" alt="PDiscoNet"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_resnet/flowers/2_parts/0_0_image_04744.jpg" alt="PDiscoNet"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label">PDiscoNet (ViT-B)</div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/flowers/2_parts/0_0_image_00412.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/flowers/2_parts/0_0_image_02190.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/flowers/2_parts/0_0_image_02296.jpg" alt="PDiscoNet ViT"></div>
+                  <div><img src="./static/images/qualitative_analysis/pdisconet_vit/flowers/2_parts/0_0_image_04744.jpg" alt="PDiscoNet ViT"></div>
+                </div>
+                <div class="qual-grid-row">
+                  <div class="qual-label" style="color: #1a56db;">PDiscoFormer (Ours)</div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/flowers/2_parts/0_0_image_00412.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/flowers/2_parts/0_0_image_02190.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/flowers/2_parts/0_0_image_02296.jpg" alt="Ours"></div>
+                  <div><img src="./static/images/qualitative_analysis/our_model/flowers/2_parts/0_0_image_04744.jpg" alt="Ours"></div>
+                </div>
+              </div>
+              <p class="is-size-7 has-text-centered has-text-grey">
+                Discovered foreground flower masks (\(K=2\)). Baselines severely degrade on multi-instance flowers, while PDiscoFormer sharply isolates petal boundaries.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODEL ZOO & QUICKSTART -->
+  <section class="section" id="model-zoo">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3 has-text-centered">Pre-trained Models & Quickstart</h2>
+          <div class="content has-text-justified">
+            <p>
+              Pre-trained checkpoints for <strong>CUB-200-2011</strong>, <strong>PartImageNet OOD</strong>, and <strong>Oxford Flowers</strong> across various part configurations (\(K\)) are available directly via <strong>Hugging Face 🤗</strong> and <strong>PyTorch Hub</strong>.
+            </p>
+          </div>
+
+          <div class="tab-group" id="code-tabs">
+            <div class="tabs is-boxed is-centered mb-3">
+              <ul>
+                <li class="is-active" data-target="code-hf">
+                  <a><span class="mr-2">🤗</span> Hugging Face</a>
+                </li>
+                <li data-target="code-torchhub">
+                  <a><i class="fas fa-cube mr-2"></i> PyTorch Hub</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- TAB 1: HUGGING FACE -->
+            <div id="code-hf" class="tab-pane is-active">
+              <pre><code># Install required dependencies
+# pip install huggingface-hub timm
+
+from models import IndividualLandmarkViT
+
+# --- CUB-200-2011 Models ---
+pdiscoformer_cub_k_4  = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_cub_k_4")
+pdiscoformer_cub_k_8  = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_cub_k_8")
+pdiscoformer_cub_k_16 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_cub_k_16")
+
+# --- PartImageNet OOD Models ---
+pdiscoformer_pimg_k_8  = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_part_imagenet_ood_k_8", input_size=224)
+pdiscoformer_pimg_k_25 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_part_imagenet_ood_k_25", input_size=224)
+pdiscoformer_pimg_k_50 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_part_imagenet_ood_k_50", input_size=224)
+
+# --- Oxford Flowers Models ---
+pdiscoformer_flw_k_2 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_flowers_k_2", input_size=224)
+pdiscoformer_flw_k_4 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_flowers_k_4", input_size=224)
+pdiscoformer_flw_k_8 = IndividualLandmarkViT.from_pretrained("ananthu-aniraj/pdiscoformer_flowers_k_8", input_size=224)
+
+# --- Forward Pass ---
+# attention_maps: [B, K+1, H, W] for K foreground parts + 1 background channel
+# class_logits:   [B, num_classes] predicted class scores
+attention_maps, class_logits = pdiscoformer_cub_k_16(images)</code></pre>
+            </div>
+
+            <!-- TAB 2: PYTORCH HUB -->
+            <div id="code-torchhub" class="tab-pane" style="display: none;">
+              <pre><code>import torch
+
+# --- CUB-200-2011 Models ---
+pdiscoformer_cub_k_4  = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_4', pretrained=True, trust_repo=True)
+pdiscoformer_cub_k_8  = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_8', pretrained=True, trust_repo=True)
+pdiscoformer_cub_k_16 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_cub_k_16', pretrained=True, trust_repo=True)
+
+# --- PartImageNet OOD Models ---
+pdiscoformer_pimg_k_8  = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_8', pretrained=True, trust_repo=True)
+pdiscoformer_pimg_k_25 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_25', pretrained=True, trust_repo=True)
+pdiscoformer_pimg_k_50 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_pimagenet_k_50', pretrained=True, trust_repo=True)
+
+# --- Oxford Flowers Models ---
+pdiscoformer_flw_k_2 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_2', pretrained=True, trust_repo=True)
+pdiscoformer_flw_k_4 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_4', pretrained=True, trust_repo=True)
+pdiscoformer_flw_k_8 = torch.hub.load("ananthu-aniraj/pdiscoformer:main", 'pdiscoformer_flowers_k_8', pretrained=True, trust_repo=True)
+
+# List all available model keys
+print(torch.hub.list("ananthu-aniraj/pdiscoformer:main"))</code></pre>
+            </div>
+          </div>
+
+          <div class="has-text-centered mt-4">
+            <a href="https://huggingface.co/spaces/ananthu-aniraj/pdiscoformer" target="_blank" class="button is-link is-rounded mr-2">
+              <span class="icon"><span style="font-size: 1.1em;">🤗</span></span>
+              <span>Open Hugging Face Live Demo</span>
+            </a>
+            <a href="https://github.com/ananthu-aniraj/pdiscoformer/blob/main/model_zoo.md" target="_blank" class="button is-dark is-outlined is-rounded">
+              <span class="icon"><i class="fas fa-table"></i></span>
+              <span>Full Model Zoo & Direct Downloads</span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BIBTEX -->
+  <section class="section" id="bibtex">
+    <div class="container is-max-desktop content">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">BibTeX</h2>
+          <div class="bibtex-wrapper">
+            <button class="copy-button" onclick="copyBibtex()">
+              <i class="far fa-copy"></i>
+              <span id="copy-text">Copy</span>
+            </button>
+            <pre><code id="bibtex-code">@inproceedings{aniraj2024pdiscoformer,
+  title={PDiscoFormer: Relaxing Part Discovery Constraints with Vision Transformers},
+  author={Aniraj, Ananthu and Dantas, Cassio F. and Ienco, Dino and Marcos, Diego},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  pages={256--272},
+  year={2024},
+  organization={Springer},
+  doi={10.1007/978-3-031-73013-9_15}
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8 has-text-centered">
+          <div class="content">
+            <p>
+              This website is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT FOR TABS AND COPY BUTTON -->
+  <script>
+    // Qualitative Tab Switching
+    document.querySelectorAll('#qualitative .tabs li').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#qualitative .tabs li').forEach(t => t.classList.remove('is-active'));
+        document.querySelectorAll('#qualitative .tab-content').forEach(c => c.classList.remove('is-active'));
+
+        tab.classList.add('is-active');
+        const targetTab = tab.getAttribute('data-tab');
+        document.getElementById(targetTab).classList.add('is-active');
+      });
+    });
+
+    // Code Tab Switching (Hugging Face vs PyTorch Hub)
+    document.querySelectorAll('#code-tabs .tabs li').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#code-tabs .tabs li').forEach(t => t.classList.remove('is-active'));
+        document.querySelectorAll('#code-tabs .tab-pane').forEach(p => {
+          p.classList.remove('is-active');
+          p.style.display = 'none';
+        });
+
+        tab.classList.add('is-active');
+        const targetId = tab.getAttribute('data-target');
+        const targetPane = document.getElementById(targetId);
+        if (targetPane) {
+          targetPane.classList.add('is-active');
+          targetPane.style.display = 'block';
+        }
+      });
+    });
+
+    // Bibtex Copy
+    function copyBibtex() {
+      const code = document.getElementById('bibtex-code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.querySelector('.copy-button');
+        const text = document.getElementById('copy-text');
+        btn.classList.add('copied');
+        text.innerText = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          text.innerText = 'Copy';
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
