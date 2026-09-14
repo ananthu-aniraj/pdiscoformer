@@ -626,10 +626,10 @@
             <table class="styled-table">
               <thead>
                 <tr>
-                  <th rowspan="2">Method</th>
-                  <th colspan="4">CUB (%)</th>
-                  <th colspan="3">PartImageNet OOD (%)</th>
-                  <th colspan="2">Oxford Flowers (%)</th>
+                  <th rowspan="2" style="vertical-align: middle;">Method</th>
+                  <th colspan="5">CUB (%)</th>
+                  <th colspan="4">PartImageNet OOD (%)</th>
+                  <th colspan="3">Flowers (%)</th>
                 </tr>
                 <tr>
                   <th>\(K\)</th>
@@ -637,77 +637,109 @@
                   <th>NMI \(\uparrow\)</th>
                   <th>ARI \(\uparrow\)</th>
                   <th>Top-1 \(\uparrow\)</th>
+                  <th>\(K\)</th>
                   <th>NMI \(\uparrow\)</th>
                   <th>ARI \(\uparrow\)</th>
+                  <th>Top-1 \(\uparrow\)</th>
+                  <th>\(K\)</th>
                   <th>Fg. mIoU \(\uparrow\)</th>
                   <th>Top-1 \(\uparrow\)</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>DINO (Amir et al.)*</td>
-                  <td>16 / 50 / 8</td>
-                  <td>-</td>
-                  <td>50.57</td>
-                  <td>26.14</td>
-                  <td>-</td>
-                  <td>37.81</td>
-                  <td>16.50</td>
-                  <td>54.44</td>
-                  <td>-</td>
+                <!-- DINO -->
+                <tr style="border-top: 1px solid #dbdbdb;">
+                  <td rowspan="3" style="vertical-align: middle; font-weight: 500;">Dino (Amir et al.)<sup>**</sup></td>
+                  <td>4</td><td>-</td><td>31.18</td><td>11.21</td><td>-</td>
+                  <td>8</td><td>19.17</td><td>7.59</td><td>-</td>
+                  <td>2</td><td>54.95</td><td>-</td>
                 </tr>
                 <tr>
-                  <td>Huang et al.</td>
-                  <td>16 / 50 / 8</td>
-                  <td>12.60</td>
-                  <td>43.92</td>
-                  <td>21.10</td>
-                  <td>85.93</td>
-                  <td>10.19</td>
-                  <td>1.05</td>
-                  <td>17.26</td>
-                  <td>92.86</td>
+                  <td>8</td><td>-</td><td>47.21</td><td>19.76</td><td>-</td>
+                  <td>25</td><td>31.46</td><td>14.16</td><td>-</td>
+                  <td>4</td><td>55.11</td><td>-</td>
                 </tr>
                 <tr>
-                  <td>PDiscoNet (ResNet)</td>
-                  <td>16 / 50 / 8</td>
-                  <td>7.67</td>
-                  <td>56.87</td>
-                  <td>38.05</td>
-                  <td>87.49</td>
-                  <td>41.49</td>
-                  <td>14.17</td>
-                  <td>49.10</td>
-                  <td>81.04</td>
+                  <td>16</td><td>-</td><td>50.57</td><td>26.14</td><td>-</td>
+                  <td>50</td><td>37.81</td><td>16.50</td><td>-</td>
+                  <td>8</td><td>54.44</td><td>-</td>
+                </tr>
+
+                <!-- Huang et al. -->
+                <tr style="border-top: 1px solid #dbdbdb;">
+                  <td rowspan="3" style="vertical-align: middle; font-weight: 500;">Huang et al.</td>
+                  <td>4</td><td>11.51</td><td>29.74</td><td>14.04</td><td>87.30</td>
+                  <td>8</td><td>5.88</td><td>1.53</td><td>74.22</td>
+                  <td>2</td><td>29.92</td><td>93.07</td>
                 </tr>
                 <tr>
-                  <td>PDiscoNet + ViT-B</td>
-                  <td>16 / 50 / 8</td>
-                  <td>5.95</td>
-                  <td>68.63</td>
-                  <td>43.41</td>
-                  <td>84.04</td>
-                  <td>29.48</td>
-                  <td>27.80</td>
-                  <td>13.18</td>
-                  <td>97.40</td>
+                  <td>8</td><td>11.60</td><td>35.72</td><td>15.90</td><td>86.05</td>
+                  <td>25</td><td>7.56</td><td>1.25</td><td>73.56</td>
+                  <td>4</td><td>33.22</td><td>93.14</td>
+                </tr>
+                <tr>
+                  <td>16</td><td>12.60</td><td>43.92</td><td>21.10</td><td>85.93</td>
+                  <td>50</td><td>10.19</td><td>1.05</td><td>73.20</td>
+                  <td>8</td><td>17.26</td><td>92.86</td>
+                </tr>
+
+                <!-- PDiscoNet (ResNet) -->
+                <tr style="border-top: 1px solid #dbdbdb;">
+                  <td rowspan="3" style="vertical-align: middle; font-weight: 500;">PDiscoNet (ResNet)</td>
+                  <td>4</td><td>9.12</td><td>37.82</td><td>15.26</td><td>86.17</td>
+                  <td>8</td><td>27.13</td><td>8.76</td><td>88.58</td>
+                  <td>2</td><td>19.04</td><td>77.51</td>
+                </tr>
+                <tr>
+                  <td>8</td><td>8.52</td><td>50.08</td><td>26.96</td><td>86.72</td>
+                  <td>25</td><td>32.41</td><td>10.69</td><td>89.00</td>
+                  <td>4</td><td>34.76</td><td>83.05</td>
+                </tr>
+                <tr>
+                  <td>16</td><td>7.67</td><td>56.87</td><td>38.05</td><td>87.49</td>
+                  <td>50</td><td>41.49</td><td>14.17</td><td>86.06</td>
+                  <td>8</td><td>49.10</td><td>81.04</td>
+                </tr>
+
+                <!-- PDiscoNet + ViT-B -->
+                <tr style="border-top: 1px solid #dbdbdb;">
+                  <td rowspan="3" style="vertical-align: middle; font-weight: 500;">PDiscoNet + ViT-B</td>
+                  <td>4</td><td>7.70</td><td>52.59</td><td>26.66</td><td>88.61</td>
+                  <td>8</td><td>19.28</td><td>34.72</td><td>90.95</td>
+                  <td>2</td><td>4.92</td><td>92.75</td>
+                </tr>
+                <tr>
+                  <td>8</td><td>6.34</td><td>65.01</td><td>37.90</td><td>86.95</td>
+                  <td>25</td><td>28.23</td><td>50.35</td><td>90.29</td>
+                  <td>4</td><td>1.95</td><td>95.48</td>
+                </tr>
+                <tr>
+                  <td>16</td><td>5.95</td><td>68.63</td><td>43.41</td><td>84.04</td>
+                  <td>50</td><td>29.48</td><td>27.80</td><td>89.69</td>
+                  <td>8</td><td>13.18</td><td>97.40</td>
+                </tr>
+
+                <!-- PDiscoFormer (Ours) -->
+                <tr class="highlight-row" style="border-top: 2px solid #3273dc;">
+                  <td rowspan="3" style="vertical-align: middle; font-weight: 700; color: #1a56db;">PDiscoFormer (Ours)</td>
+                  <td>4</td><td>7.41</td><td>58.13</td><td>25.11</td><td><strong class="best-val">89.06</strong></td>
+                  <td>8</td><td>29.00</td><td>52.40</td><td>89.75</td>
+                  <td>2</td><td><strong class="best-val">73.62</strong></td><td>99.61</td>
                 </tr>
                 <tr class="highlight-row">
-                  <td><strong>PDiscoFormer (Ours)</strong></td>
-                  <td>16 / 50 / 8</td>
-                  <td><span class="best-val">5.74</span></td>
-                  <td><span class="best-val">73.38</span></td>
-                  <td><span class="best-val">55.83</span></td>
-                  <td><span class="best-val">88.72</span></td>
-                  <td><span class="best-val">46.29</span></td>
-                  <td><span class="best-val">62.21</span></td>
-                  <td><span class="best-val">69.59</span></td>
-                  <td><span class="best-val">99.64</span></td>
+                  <td>8</td><td>5.99</td><td>69.87</td><td>43.49</td><td>88.79</td>
+                  <td>25</td><td>44.71</td><td>59.27</td><td>90.77</td>
+                  <td>4</td><td>73.32</td><td>99.54</td>
+                </tr>
+                <tr class="highlight-row">
+                  <td>16</td><td><strong class="best-val">5.74</strong></td><td><strong class="best-val">73.38</strong></td><td><strong class="best-val">55.83</strong></td><td>88.72</td>
+                  <td>50</td><td><strong class="best-val">46.29</strong></td><td><strong class="best-val">62.21</strong></td><td><strong class="best-val">91.01</strong></td>
+                  <td>8</td><td>69.59</td><td><strong class="best-val">99.64</strong></td>
                 </tr>
               </tbody>
             </table>
-            <p class="is-size-7 has-text-grey mt-1">
-              * DINO uses no class supervision. For Flowers, \(K=2\) achieves <span class="best-val">73.62%</span> Fg. mIoU for PDiscoFormer compared to 4.92% for PDiscoNet+ViT and 19.04% for PDiscoNet.
+            <p class="is-size-7 has-text-grey mt-2">
+              <sup>**</sup> Method does not use any class supervision. Best results across methods are highlighted in <strong>bold blue</strong>.
             </p>
           </div>
 
