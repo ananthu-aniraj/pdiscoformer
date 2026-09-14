@@ -38,3 +38,7 @@ wheels/
 *.tsv
 wandb/
 exps/
+
+# Do not ignore website assets in docs
+!docs/**
+
