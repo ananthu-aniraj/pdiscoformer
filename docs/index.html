@@ -266,6 +266,35 @@
       border-top: 1px solid #f0f0f0;
       border-bottom: 1px solid #f0f0f0;
     }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Interactive Demo Section */
+    .demo-container {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      background: #ffffff;
+      margin: 1.5rem 0;
+    }
+
+    .demo-iframe {
+      width: 100%;
+      height: 800px;
+      min-height: 500px;
+      border: none;
+      display: block;
+    }
+
+    @media screen and (max-width: 768px) {
+      .demo-iframe {
+        height: 980px;
+      }
+    }
   </style>
 
   <!-- MathJax Configuration -->
@@ -381,7 +410,7 @@
 
                 <!-- HuggingFace Space Demo -->
                 <span class="link-block">
-                  <a href="https://huggingface.co/spaces/ananthu-aniraj/pdiscoformer" target="_blank"
+                  <a href="#interactive-demo"
                      class="external-link button is-normal is-rounded is-dark">
                     <span class="icon"><span style="font-size: 1.1em;">🤗</span></span>
                     <span>Live Demo</span>
@@ -1072,6 +1101,46 @@
     </div>
   </section>
 
+  <!-- INTERACTIVE DEMO (HUGGING FACE SPACE) -->
+  <section class="section" id="interactive-demo">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3 has-text-centered">Interactive Live Demo</h2>
+          <div class="content has-text-justified">
+            <p>
+              Try <strong>PDiscoFormer</strong> interactively in your browser via our Hugging Face Space. Upload an image or choose one of the built-in examples (birds, flowers, PartImageNet) to discover semantic object parts and visualize attention maps in real time.
+            </p>
+          </div>
+
+          <div class="demo-container">
+            <iframe
+                class="demo-iframe"
+                src="https://ananthu-aniraj-pdiscoformer.hf.space"
+                frameborder="0"
+                width="850"
+                height="800"
+                allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+                sandbox="allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-downloads"
+            ></iframe>
+          </div>
+
+          <div class="has-text-centered mt-3">
+            <a href="https://huggingface.co/spaces/ananthu-aniraj/pdiscoformer" target="_blank" class="button is-link is-rounded mr-2">
+              <span class="icon"><span style="font-size: 1.1em;">🤗</span></span>
+              <span>Open on Hugging Face Spaces</span>
+            </a>
+            <a href="https://ananthu-aniraj-pdiscoformer.hf.space" target="_blank" class="button is-dark is-outlined is-rounded">
+              <span class="icon"><i class="fas fa-external-link-alt"></i></span>
+              <span>Direct Fullscreen View</span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- MODEL ZOO & QUICKSTART -->
   <section class="section" id="model-zoo">
     <div class="container is-max-desktop">
@@ -1149,9 +1218,9 @@ print(torch.hub.list("ananthu-aniraj/pdiscoformer:main"))</code></pre>
           </div>
 
           <div class="has-text-centered mt-4">
-            <a href="https://huggingface.co/spaces/ananthu-aniraj/pdiscoformer" target="_blank" class="button is-link is-rounded mr-2">
+            <a href="#interactive-demo" class="button is-link is-rounded mr-2">
               <span class="icon"><span style="font-size: 1.1em;">🤗</span></span>
-              <span>Open Hugging Face Live Demo</span>
+              <span>Try Interactive Live Demo</span>
             </a>
             <a href="https://github.com/ananthu-aniraj/pdiscoformer/blob/main/model_zoo.md" target="_blank" class="button is-dark is-outlined is-rounded">
               <span class="icon"><i class="fas fa-table"></i></span>
